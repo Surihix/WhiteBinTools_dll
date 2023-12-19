@@ -1,5 +1,5 @@
 # WhiteBinTools_dll
-A C# reference library containing functions used by my WhiteBinTools project linked below:
+A C# reference library containing functions used by my WhiteBinTools program linked below:
 <br>https://github.com/Surihix/WhiteBinTools/tree/master
 
 ## Important
