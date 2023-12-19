@@ -1,12 +1,19 @@
 ﻿namespace WhiteBinTools.SupportClasses
 {
-    public class CmnEnums
+    public class ProgramEnums
     {
         public enum GameCodes
         {
             ff131,
             ff132,
             none
+        }
+
+
+        public enum CryptActions
+        {
+            d,
+            e
         }
 
 

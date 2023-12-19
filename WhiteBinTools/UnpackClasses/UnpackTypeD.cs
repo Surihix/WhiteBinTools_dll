@@ -2,18 +2,19 @@
 using System.IO;
 using WhiteBinTools.FilelistClasses;
 using WhiteBinTools.SupportClasses;
+using static WhiteBinTools.SupportClasses.ProgramEnums;
 
 namespace WhiteBinTools
 {
     public class UnpackTypeD
     {
-        public static void UnpackFilelist(CmnEnums.GameCodes gameCodeVar, string filelistFileVar)
+        public static void UnpackFilelist(GameCodes gameCode, string filelistFile)
         {
-            var filelistVariables = new FilelistProcesses();
+            var filelistVariables = new FilelistVariables();
 
-            FilelistProcesses.PrepareFilelistVars(filelistVariables, filelistFileVar);
+            FilelistProcesses.PrepareFilelistVars(filelistVariables, filelistFile);
 
-            var filelistOutName = Path.GetFileName(filelistFileVar);
+            var filelistOutName = Path.GetFileName(filelistFile);
             var extractedFilelistDir = filelistVariables.MainFilelistDirectory + "\\_" + filelistOutName;
             var outChunkFile = extractedFilelistDir + "\\Chunk_";
 
@@ -21,19 +22,19 @@ namespace WhiteBinTools
             Directory.CreateDirectory(extractedFilelistDir);
 
 
-            FilelistProcesses.DecryptProcess(gameCodeVar, filelistVariables);
+            FilelistProcesses.DecryptProcess(gameCode, filelistVariables);
 
             using (var filelistStream = new FileStream(filelistVariables.MainFilelistFile, FileMode.Open, FileAccess.Read))
             {
                 using (var filelistReader = new BinaryReader(filelistStream))
                 {
-                    FilelistProcesses.GetFilelistOffsets(filelistReader, filelistVariables);
+                    FilelistChunksPrep.GetFilelistOffsets(filelistReader, filelistVariables);
 
                     if (filelistVariables.IsEncrypted)
                     {
                         using (var encHeader = new FileStream(extractedFilelistDir + "\\EncryptionHeader_(DON'T DELETE)", FileMode.OpenOrCreate, FileAccess.Write))
                         {
-                            filelistStream.ExtendedCopyTo(encHeader, 0, 32);
+                            filelistStream.ExCopyTo(encHeader, 0, 32);
                         }
                     }
 
@@ -69,7 +70,7 @@ namespace WhiteBinTools
                                 {
                                     using (var dcmpChunkReader = new BinaryReader(dcmpChunkStream))
                                     {
-                                        filelistStream.ExtendedCopyTo(cmpChunkStream, chunkStart, compressedSize);
+                                        filelistStream.ExCopyTo(cmpChunkStream, chunkStart, compressedSize);
 
                                         cmpChunkStream.Seek(0, SeekOrigin.Begin);
                                         cmpChunkStream.ZlibDecompress(dcmpChunkStream);
@@ -81,7 +82,7 @@ namespace WhiteBinTools
                                         {
                                             var filePath = dcmpChunkReader.BinaryToString(currentPathReadPos);
 
-                                            if (filePath.Equals("end"))
+                                            if (filePath == "end")
                                             {
                                                 break;
                                             }
@@ -91,14 +92,14 @@ namespace WhiteBinTools
                                             ushort chunkNumber = 0;
                                             ushort unkVal = 0;
 
-                                            switch (gameCodeVar)
+                                            switch (gameCode)
                                             {
-                                                case CmnEnums.GameCodes.ff131:
+                                                case GameCodes.ff131:
                                                     chunkNumber = filelistReader.ReadUInt16();
                                                     _ = filelistReader.ReadUInt16();
                                                     break;
 
-                                                case CmnEnums.GameCodes.ff132:
+                                                case GameCodes.ff132:
                                                     _ = filelistReader.ReadUInt16();
                                                     chunkNumber = filelistReader.ReadByte();
                                                     unkVal = filelistReader.ReadByte();
@@ -107,7 +108,7 @@ namespace WhiteBinTools
 
                                             chunkDataStream.Write(fileCode + "|");
                                             chunkDataStream.Write(chunkNumber + "|");
-                                            if (gameCodeVar.Equals(CmnEnums.GameCodes.ff132))
+                                            if (gameCode.Equals(GameCodes.ff132))
                                             {
                                                 chunkDataStream.Write(unkVal + "|");
                                             }

@@ -2,18 +2,19 @@
 using System.IO;
 using WhiteBinTools.FilelistClasses;
 using WhiteBinTools.SupportClasses;
+using static WhiteBinTools.SupportClasses.ProgramEnums;
 
 namespace WhiteBinTools.RepackClasses
 {
     public class RepackTypeA
     {
-        public static void RepackAll(CmnEnums.GameCodes gameCodeVar, string filelistFileVar, string extractedDirVar)
+        public static void RepackAll(GameCodes gameCode, string filelistFile, string extractedDir)
         {
-            var filelistVariables = new FilelistProcesses();
-            var repackVariables = new RepackProcesses();
+            var filelistVariables = new FilelistVariables();
+            var repackVariables = new RepackVariables();
 
-            FilelistProcesses.PrepareFilelistVars(filelistVariables, filelistFileVar);
-            RepackProcesses.PrepareRepackVars(repackVariables, filelistFileVar, filelistVariables, extractedDirVar);
+            FilelistProcesses.PrepareFilelistVars(filelistVariables, filelistFile);
+            RepackProcesses.PrepareRepackVars(repackVariables, filelistFile, filelistVariables, extractedDir);
 
             filelistVariables.DefaultChunksExtDir.IfDirExistsDel();
             Directory.CreateDirectory(filelistVariables.DefaultChunksExtDir);
@@ -21,7 +22,7 @@ namespace WhiteBinTools.RepackClasses
             repackVariables.NewChunksExtDir.IfDirExistsDel();
             Directory.CreateDirectory(repackVariables.NewChunksExtDir);
 
-            RepackProcesses.CreateFilelistBackup(filelistFileVar, repackVariables);
+            RepackProcesses.CreateFilelistBackup(filelistFile, repackVariables);
 
             repackVariables.OldWhiteBinFileBackup = repackVariables.NewWhiteBinFile + ".bak";
             repackVariables.OldWhiteBinFileBackup.IfFileExistsDel();
@@ -31,86 +32,89 @@ namespace WhiteBinTools.RepackClasses
             }
 
 
-            FilelistProcesses.DecryptProcess(gameCodeVar, filelistVariables);
+            FilelistProcesses.DecryptProcess(gameCode, filelistVariables);
 
-            using (var filelist = new FileStream(filelistVariables.MainFilelistFile, FileMode.Open, FileAccess.Read))
+            using (var filelistStream = new FileStream(filelistVariables.MainFilelistFile, FileMode.Open, FileAccess.Read))
             {
-                using (var filelistReader = new BinaryReader(filelist))
+                using (var filelistReader = new BinaryReader(filelistStream))
                 {
-                    FilelistProcesses.GetFilelistOffsets(filelistReader, filelistVariables);
-                    FilelistProcesses.UnpackChunks(filelist, filelistVariables.ChunkFile, filelistVariables);
+                    FilelistChunksPrep.GetFilelistOffsets(filelistReader, filelistVariables);
+                    FilelistChunksPrep.UnpackChunks(filelistStream, filelistVariables.ChunkFile, filelistVariables);
                 }
             }
 
 
-            filelistVariables.ChunkFNameCount = 0;
-            repackVariables.LastChunkFileNumber = 0;
-            for (int ch = 0; ch < filelistVariables.TotalChunks; ch++)
+            using (var newWhiteBinStream = new FileStream(repackVariables.NewWhiteBinFile, FileMode.Append, FileAccess.Write))
             {
-                var filesInChunkCount = FilelistProcesses.GetFilesInChunkCount(filelistVariables.ChunkFile + filelistVariables.ChunkFNameCount);
 
-                using (var currentChunk = new FileStream(filelistVariables.ChunkFile + filelistVariables.ChunkFNameCount, FileMode.Open, FileAccess.Read))
+                filelistVariables.ChunkFNameCount = 0;
+                repackVariables.LastChunkFileNumber = 0;
+
+                for (int ch = 0; ch < filelistVariables.TotalChunks; ch++)
                 {
-                    using (var chunkStringReader = new BinaryReader(currentChunk))
+                    var filesInChunkCount = FilelistProcesses.GetFilesInChunkCount(filelistVariables.ChunkFile + filelistVariables.ChunkFNameCount);
+
+                    using (var currentChunkStream = new FileStream(filelistVariables.ChunkFile + filelistVariables.ChunkFNameCount, FileMode.Open, FileAccess.Read))
                     {
-
-                        using (var updChunkStrings = new FileStream(repackVariables.NewChunkFile + filelistVariables.ChunkFNameCount, FileMode.Append, FileAccess.Write))
+                        using (var chunkStringReader = new BinaryReader(currentChunkStream))
                         {
-                            using (var updChunkStringsWriter = new StreamWriter(updChunkStrings))
+
+                            using (var updChunkStrings = new FileStream(repackVariables.NewChunkFile + filelistVariables.ChunkFNameCount, FileMode.Append, FileAccess.Write))
                             {
-
-                                var chunkStringReaderPos = (uint)0;
-                                for (int f = 0; f < filesInChunkCount; f++)
+                                using (var updChunkStringsWriter = new StreamWriter(updChunkStrings))
                                 {
-                                    var convertedString = chunkStringReader.BinaryToString(chunkStringReaderPos);
-                                    if (convertedString.Equals("end"))
-                                    {
-                                        updChunkStringsWriter.Write("end\0");
-                                        repackVariables.LastChunkFileNumber = filelistVariables.ChunkFNameCount;
-                                        break;
-                                    }
 
-                                    RepackProcesses.GetPackedState(convertedString, repackVariables, extractedDirVar);
-
-                                    using (var newWhiteBin = new FileStream(repackVariables.NewWhiteBinFile, FileMode.Append, FileAccess.Write))
+                                    var chunkStringReaderPos = (uint)0;
+                                    for (int f = 0; f < filesInChunkCount; f++)
                                     {
+                                        var convertedString = chunkStringReader.BinaryToString(chunkStringReaderPos);
+                                        if (convertedString == "end")
+                                        {
+                                            updChunkStringsWriter.Write("end\0");
+                                            repackVariables.LastChunkFileNumber = filelistVariables.ChunkFNameCount;
+                                            break;
+                                        }
+
+                                        RepackProcesses.GetPackedState(convertedString, repackVariables, extractedDir);
+
                                         if (!File.Exists(repackVariables.OgFullFilePath))
                                         {
                                             var createDummyFile = File.Create(repackVariables.OgFullFilePath);
                                             createDummyFile.Close();
                                         }
 
-                                        RepackProcesses.RepackTypeAppend(repackVariables, newWhiteBin, repackVariables.OgFullFilePath);
+                                        RepackProcesses.RepackTypeAppend(repackVariables, newWhiteBinStream, repackVariables.OgFullFilePath);
+
+                                        updChunkStringsWriter.Write(repackVariables.AsciiFilePos + ":");
+                                        updChunkStringsWriter.Write(repackVariables.AsciiUnCmpSize + ":");
+                                        updChunkStringsWriter.Write(repackVariables.AsciiCmpSize + ":");
+                                        updChunkStringsWriter.Write(repackVariables.RepackPathInChunk + "\0");
+
+                                        Console.WriteLine(repackVariables.RepackState + " " + repackVariables.NewWhiteBinFileName + "\\" + repackVariables.RepackLogMsg);
+
+                                        chunkStringReaderPos = (uint)chunkStringReader.BaseStream.Position;
                                     }
-
-                                    updChunkStringsWriter.Write(repackVariables.AsciiFilePos + ":");
-                                    updChunkStringsWriter.Write(repackVariables.AsciiUnCmpSize + ":");
-                                    updChunkStringsWriter.Write(repackVariables.AsciiCmpSize + ":");
-                                    updChunkStringsWriter.Write(repackVariables.RepackPathInChunk + "\0");
-
-                                    Console.WriteLine(repackVariables.RepackState + " " + repackVariables.NewWhiteBinFileName + "\\" + repackVariables.RepackLogMsg);
-
-                                    chunkStringReaderPos = (uint)chunkStringReader.BaseStream.Position;
                                 }
                             }
                         }
                     }
-                }
 
-                filelistVariables.ChunkFNameCount++;
+                    filelistVariables.ChunkFNameCount++;
+                }
             }
+
 
             filelistVariables.DefaultChunksExtDir.IfDirExistsDel();
 
 
-            if (filelistVariables.IsEncrypted.Equals(true))
+            if (filelistVariables.IsEncrypted)
             {
-                File.Delete(filelistFileVar);
+                File.Delete(filelistFile);
             }
 
-            RepackProcesses.CreateFilelist(filelistVariables, repackVariables, gameCodeVar);
+            RepackFilelist.CreateFilelist(filelistVariables, repackVariables, gameCode);
 
-            if (filelistVariables.IsEncrypted.Equals(true))
+            if (filelistVariables.IsEncrypted)
             {
                 FilelistProcesses.EncryptProcess(repackVariables);
                 filelistVariables.TmpDcryptFilelistFile.IfFileExistsDel();

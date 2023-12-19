@@ -5,18 +5,19 @@ using System.Linq;
 using WhiteBinTools.FilelistClasses;
 using WhiteBinTools.RepackClasses;
 using WhiteBinTools.SupportClasses;
+using static WhiteBinTools.SupportClasses.ProgramEnums;
 
 namespace WhiteBinTools
 {
     public class RepackTypeD
     {
-        public static void RepackFilelist(CmnEnums.GameCodes gameCodeVar, string filelistFileVar, string extractedFilelistDir)
+        public static void RepackFilelist(GameCodes gameCode, string extractedFilelistDir)
         {
             var countsFile = extractedFilelistDir + "\\~Counts.txt";
             var encHeaderFile = extractedFilelistDir + "\\EncryptionHeader_(DON'T DELETE)";
             var outChunksDir = extractedFilelistDir + "\\_chunks";
 
-            var filelistVariables = new FilelistProcesses();
+            var filelistVariables = new FilelistVariables();
             if (File.Exists(encHeaderFile))
             {
                 filelistVariables.IsEncrypted = true;
@@ -51,7 +52,7 @@ namespace WhiteBinTools
 
 
             var int16RangeValues = new List<uint>();
-            if (gameCodeVar.Equals(CmnEnums.GameCodes.ff132) && filelistVariables.TotalChunks > 1)
+            if (gameCode.Equals(GameCodes.ff132) && filelistVariables.TotalChunks > 1)
             {
                 var nextChunkNo = 1;
                 for (int i = 0; i < filelistVariables.TotalChunks; i++)
@@ -71,7 +72,7 @@ namespace WhiteBinTools
                 {
                     using (var encHeader = new FileStream(encHeaderFile, FileMode.Open, FileAccess.Read))
                     {
-                        encHeader.ExtendedCopyTo(emptyFilelistStream, 0, encHeader.Length);
+                        encHeader.ExCopyTo(emptyFilelistStream, 0, encHeader.Length);
                     }
                 }
 
@@ -115,28 +116,28 @@ namespace WhiteBinTools
                                         var chunkData = currentChunkReader.ReadLine().Split('|');
                                         var fileCode = uint.Parse(chunkData[0]);
 
-                                        entriesWriter.AdjustBytesUInt32(entriesWritePos, fileCode, CmnEnums.Endianness.LittleEndian);
+                                        entriesWriter.ExWriteBytesUInt32(entriesWritePos, fileCode, Endianness.LittleEndian);
 
-                                        switch (gameCodeVar)
+                                        switch (gameCode)
                                         {
-                                            case CmnEnums.GameCodes.ff131:
+                                            case GameCodes.ff131:
                                                 var chunkNumber = ushort.Parse(chunkData[1]);
 
-                                                entriesWriter.AdjustBytesUInt16(entriesWritePos + 4, chunkNumber);
-                                                entriesWriter.AdjustBytesUInt16(entriesWritePos + 6, pathPos);
+                                                entriesWriter.ExWriteBytesUInt16(entriesWritePos + 4, chunkNumber);
+                                                entriesWriter.ExWriteBytesUInt16(entriesWritePos + 6, pathPos);
 
                                                 outChunkWriter.Write(chunkData[2] + "\0");
                                                 pathPos += (ushort)(chunkData[2] + "\0").Length;
                                                 break;
 
-                                            case CmnEnums.GameCodes.ff132:
+                                            case GameCodes.ff132:
                                                 if (int16RangeValues.Contains(filelistVariables.ChunkFNameCount))
                                                 {
-                                                    entriesWriter.AdjustBytesUInt16(entriesWritePos + 4, (ushort)(32768 + pathPos));
+                                                    entriesWriter.ExWriteBytesUInt16(entriesWritePos + 4, (ushort)(32768 + pathPos));
                                                 }
                                                 else
                                                 {
-                                                    entriesWriter.AdjustBytesUInt16(entriesWritePos + 4, pathPos);
+                                                    entriesWriter.ExWriteBytesUInt16(entriesWritePos + 4, pathPos);
                                                 }
 
                                                 var chunkNumByte = byte.Parse(chunkData[1]);
@@ -182,9 +183,9 @@ namespace WhiteBinTools
                     using (var chunkInfoWriter = new BinaryWriter(chunkInfoStream))
                     {
 
-                        chunkInfoWriter.AdjustBytesUInt32(encHeaderAdjustedOffset, chunksInfoWriterPos - encHeaderAdjustedOffset, CmnEnums.Endianness.LittleEndian);
-                        chunkInfoWriter.AdjustBytesUInt32(encHeaderAdjustedOffset + 4, chunksDataStartPos - encHeaderAdjustedOffset, CmnEnums.Endianness.LittleEndian);
-                        chunkInfoWriter.AdjustBytesUInt32(encHeaderAdjustedOffset + 8, filelistVariables.TotalFiles, CmnEnums.Endianness.LittleEndian);
+                        chunkInfoWriter.ExWriteBytesUInt32(encHeaderAdjustedOffset, chunksInfoWriterPos - encHeaderAdjustedOffset, Endianness.LittleEndian);
+                        chunkInfoWriter.ExWriteBytesUInt32(encHeaderAdjustedOffset + 4, chunksDataStartPos - encHeaderAdjustedOffset, Endianness.LittleEndian);
+                        chunkInfoWriter.ExWriteBytesUInt32(encHeaderAdjustedOffset + 8, filelistVariables.TotalFiles, Endianness.LittleEndian);
 
 
                         for (int fc = 0; fc < filelistVariables.TotalChunks; fc++)
@@ -196,9 +197,9 @@ namespace WhiteBinTools
                             var cmpSize = (uint)cmpChunkArray.Length;
                             chunkDataStream.Write(cmpChunkArray, 0, cmpChunkArray.Length);
 
-                            chunkInfoWriter.AdjustBytesUInt32(chunksInfoWriterPos, uncmpSize, CmnEnums.Endianness.LittleEndian);
-                            chunkInfoWriter.AdjustBytesUInt32(chunksInfoWriterPos + 4, cmpSize, CmnEnums.Endianness.LittleEndian);
-                            chunkInfoWriter.AdjustBytesUInt32(chunksInfoWriterPos + 8, chunkStart, CmnEnums.Endianness.LittleEndian);
+                            chunkInfoWriter.ExWriteBytesUInt32(chunksInfoWriterPos, uncmpSize, Endianness.LittleEndian);
+                            chunkInfoWriter.ExWriteBytesUInt32(chunksInfoWriterPos + 4, cmpSize, Endianness.LittleEndian);
+                            chunkInfoWriter.ExWriteBytesUInt32(chunksInfoWriterPos + 8, chunkStart, Endianness.LittleEndian);
 
                             chunkStart += cmpSize;
                             chunksInfoWriterPos += 12;
@@ -211,10 +212,10 @@ namespace WhiteBinTools
 
             outChunksDir.IfDirExistsDel();
 
-            var repackVariables = new RepackProcesses();
+            var repackVariables = new RepackVariables();
             repackVariables.NewFilelistFile = newFilelistFile;
 
-            if (filelistVariables.IsEncrypted.Equals(true))
+            if (filelistVariables.IsEncrypted)
             {
                 FilelistProcesses.EncryptProcess(repackVariables);
             }

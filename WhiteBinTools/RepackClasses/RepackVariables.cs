@@ -1,6 +1,6 @@
 ﻿namespace WhiteBinTools.RepackClasses
 {
-    public partial class RepackProcesses
+    public class RepackVariables
     {
         public string FilelistFileName { get; set; }
         public string NewFilelistFile { get; set; }

@@ -2,20 +2,21 @@
 using System.IO;
 using WhiteBinTools.FilelistClasses;
 using WhiteBinTools.SupportClasses;
+using static WhiteBinTools.SupportClasses.ProgramEnums;
 
 namespace WhiteBinTools.RepackClasses
 {
     public class RepackTypeB
     {
-        public static void RepackSingle(CmnEnums.GameCodes gameCodeVar, string filelistFileVar, string whiteBinFileVar, string whiteFilePathVar)
+        public static void RepackSingle(GameCodes gameCode, string filelistFile, string whiteBinFile, string whiteFilePath)
         {
-            var filelistVariables = new FilelistProcesses();
-            var repackVariables = new RepackProcesses();
+            var filelistVariables = new FilelistVariables();
+            var repackVariables = new RepackVariables();
 
-            FilelistProcesses.PrepareFilelistVars(filelistVariables, filelistFileVar);
+            FilelistProcesses.PrepareFilelistVars(filelistVariables, filelistFile);
 
-            var extractedDirVar = Path.GetDirectoryName(whiteBinFileVar) + "\\_" + Path.GetFileName(whiteBinFileVar);
-            RepackProcesses.PrepareRepackVars(repackVariables, filelistFileVar, filelistVariables, extractedDirVar);
+            var extractedDir = Path.GetDirectoryName(whiteBinFile) + "\\_" + Path.GetFileName(whiteBinFile);
+            RepackProcesses.PrepareRepackVars(repackVariables, filelistFile, filelistVariables, extractedDir);
 
             filelistVariables.DefaultChunksExtDir.IfDirExistsDel();
             Directory.CreateDirectory(filelistVariables.DefaultChunksExtDir);
@@ -23,7 +24,7 @@ namespace WhiteBinTools.RepackClasses
             repackVariables.NewChunksExtDir.IfDirExistsDel();
             Directory.CreateDirectory(repackVariables.NewChunksExtDir);
 
-            RepackProcesses.CreateFilelistBackup(filelistFileVar, repackVariables);
+            RepackProcesses.CreateFilelistBackup(filelistFile, repackVariables);
 
             repackVariables.OldWhiteBinFileBackup = repackVariables.NewWhiteBinFile + ".bak";
             repackVariables.OldWhiteBinFileBackup.IfFileExistsDel();
@@ -32,14 +33,14 @@ namespace WhiteBinTools.RepackClasses
             File.Copy(repackVariables.NewWhiteBinFile, repackVariables.OldWhiteBinFileBackup);
 
 
-            FilelistProcesses.DecryptProcess(gameCodeVar, filelistVariables);
+            FilelistProcesses.DecryptProcess(gameCode, filelistVariables);
 
-            using (var filelist = new FileStream(filelistVariables.MainFilelistFile, FileMode.Open, FileAccess.Read))
+            using (var filelistStream = new FileStream(filelistVariables.MainFilelistFile, FileMode.Open, FileAccess.Read))
             {
-                using (var filelistReader = new BinaryReader(filelist))
+                using (var filelistReader = new BinaryReader(filelistStream))
                 {
-                    FilelistProcesses.GetFilelistOffsets(filelistReader, filelistVariables);
-                    FilelistProcesses.UnpackChunks(filelist, filelistVariables.ChunkFile, filelistVariables);
+                    FilelistChunksPrep.GetFilelistOffsets(filelistReader, filelistVariables);
+                    FilelistChunksPrep.UnpackChunks(filelistStream, filelistVariables.ChunkFile, filelistVariables);
                 }
             }
 
@@ -50,9 +51,9 @@ namespace WhiteBinTools.RepackClasses
             {
                 var filesInChunkCount = FilelistProcesses.GetFilesInChunkCount(filelistVariables.ChunkFile + filelistVariables.ChunkFNameCount);
 
-                using (var currentChunk = new FileStream(filelistVariables.ChunkFile + filelistVariables.ChunkFNameCount, FileMode.Open, FileAccess.Read))
+                using (var currentChunkStream = new FileStream(filelistVariables.ChunkFile + filelistVariables.ChunkFNameCount, FileMode.Open, FileAccess.Read))
                 {
-                    using (var chunkStringReader = new BinaryReader(currentChunk))
+                    using (var chunkStringReader = new BinaryReader(currentChunkStream))
                     {
 
                         using (var updChunkStrings = new FileStream(repackVariables.NewChunkFile + filelistVariables.ChunkFNameCount, FileMode.Append, FileAccess.Write))
@@ -65,14 +66,14 @@ namespace WhiteBinTools.RepackClasses
                                 for (int f = 0; f < filesInChunkCount; f++)
                                 {
                                     var convertedString = chunkStringReader.BinaryToString(chunkStringReaderPos);
-                                    if (convertedString.Equals("end"))
+                                    if (convertedString == "end")
                                     {
                                         updChunkStringsWriter.Write("end\0");
                                         repackVariables.LastChunkFileNumber = filelistVariables.ChunkFNameCount;
                                         break;
                                     }
 
-                                    RepackProcesses.GetPackedState(convertedString, repackVariables, extractedDirVar);
+                                    RepackProcesses.GetPackedState(convertedString, repackVariables, extractedDir);
 
                                     repackVariables.AsciiFilePos = repackVariables.ConvertedOgStringData[0];
                                     repackVariables.AsciiUnCmpSize = repackVariables.ConvertedOgStringData[1];
@@ -80,7 +81,7 @@ namespace WhiteBinTools.RepackClasses
 
                                     // Repack a specific file
                                     var currentFilePath = repackVariables.OgDirectoryPath + "\\" + repackVariables.OgFileName;
-                                    if (currentFilePath.Equals(whiteFilePathVar))
+                                    if (currentFilePath == whiteFilePath)
                                     {
                                         switch (repackVariables.WasCompressed)
                                         {
@@ -137,14 +138,14 @@ namespace WhiteBinTools.RepackClasses
             filelistVariables.DefaultChunksExtDir.IfDirExistsDel();
 
 
-            if (filelistVariables.IsEncrypted.Equals(true))
+            if (filelistVariables.IsEncrypted)
             {
-                File.Delete(filelistFileVar);
+                File.Delete(filelistFile);
             }
 
-            RepackProcesses.CreateFilelist(filelistVariables, repackVariables, gameCodeVar);
+            RepackFilelist.CreateFilelist(filelistVariables, repackVariables, gameCode);
 
-            if (filelistVariables.IsEncrypted.Equals(true))
+            if (filelistVariables.IsEncrypted)
             {
                 FilelistProcesses.EncryptProcess(repackVariables);
                 filelistVariables.TmpDcryptFilelistFile.IfFileExistsDel();

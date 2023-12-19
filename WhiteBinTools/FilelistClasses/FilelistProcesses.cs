@@ -1,16 +1,17 @@
 ﻿using System;
-using System.Diagnostics;
 using System.IO;
+using WhiteBinTools.CryptoClasses;
 using WhiteBinTools.RepackClasses;
 using WhiteBinTools.SupportClasses;
+using static WhiteBinTools.SupportClasses.ProgramEnums;
 
 namespace WhiteBinTools.FilelistClasses
 {
-    public partial class FilelistProcesses
+    public class FilelistProcesses
     {
-        public static void PrepareFilelistVars(FilelistProcesses filelistVariables, string filelistFileVar)
+        public static void PrepareFilelistVars(FilelistVariables filelistVariables, string filelistFile)
         {
-            filelistVariables.MainFilelistFile = filelistFileVar;
+            filelistVariables.MainFilelistFile = filelistFile;
 
             var inFilelistFilePath = Path.GetFullPath(filelistVariables.MainFilelistFile);
             filelistVariables.MainFilelistDirectory = Path.GetDirectoryName(inFilelistFilePath);
@@ -18,26 +19,62 @@ namespace WhiteBinTools.FilelistClasses
         }
 
 
-        public static void DecryptProcess(CmnEnums.GameCodes gameCodeVar, FilelistProcesses filelistVariables)
+        public static void DecryptProcess(GameCodes gameCodeVar, FilelistVariables filelistVariables)
         {
             // Check if the filelist is encrypted
             // or not
-            if (gameCodeVar.Equals(CmnEnums.GameCodes.ff132))
+            if (gameCodeVar.Equals(GameCodes.ff132))
             {
                 filelistVariables.IsEncrypted = CheckIfEncrypted(filelistVariables.MainFilelistFile);
             }
 
-            // If the filelist is encrypted then decrypt the filelist file
-            // by first creating a temp copy of the filelist 
-            if (filelistVariables.IsEncrypted.Equals(true))
+            // Check if the filelist is in decrypted
+            // state and the length of the cryptBody
+            // for divisibility.
+            // If the file was decrypted then skip
+            // decrypting it.
+            // If the filelist is encrypted then
+            // decrypt the filelist file by first
+            // creating a temp copy of the filelist.            
+            if (filelistVariables.IsEncrypted)
             {
-                filelistVariables.TmpDcryptFilelistFile.IfFileExistsDel();
-                File.Copy(filelistVariables.MainFilelistFile, filelistVariables.TmpDcryptFilelistFile);
+                var wasDecrypted = false;
 
-                var cryptFilelistCode = " filelist";
-                FFXiiiCryptTool(" -d ", "\"" + filelistVariables.TmpDcryptFilelistFile + "\"", ref cryptFilelistCode);
+                using (var encCheckReader = new BinaryReader(File.Open(filelistVariables.MainFilelistFile, FileMode.Open, FileAccess.Read)))
+                {
+                    encCheckReader.BaseStream.Position = 16;
+                    var cryptBodySizeVal = encCheckReader.ReadBytes(4);
+                    Array.Reverse(cryptBodySizeVal);
 
-                filelistVariables.MainFilelistFile = filelistVariables.TmpDcryptFilelistFile;
+                    var cryptBodySize = BitConverter.ToUInt32(cryptBodySizeVal, 0);
+                    encCheckReader.BaseStream.Position = 32 + cryptBodySize - 8;
+
+                    if (encCheckReader.ReadUInt32() == cryptBodySize)
+                    {
+                        wasDecrypted = true;
+                    }
+                }
+
+                switch (wasDecrypted)
+                {
+                    case true:
+                        filelistVariables.TmpDcryptFilelistFile.IfFileExistsDel();
+                        File.Copy(filelistVariables.MainFilelistFile, filelistVariables.TmpDcryptFilelistFile);
+
+                        filelistVariables.MainFilelistFile = filelistVariables.TmpDcryptFilelistFile;
+                        break;
+
+                    case false:
+                        filelistVariables.TmpDcryptFilelistFile.IfFileExistsDel();
+                        File.Copy(filelistVariables.MainFilelistFile, filelistVariables.TmpDcryptFilelistFile);
+
+                        Console.WriteLine("\nDecrypting filelist file....");
+                        CryptFilelist.ProcessFilelist(CryptActions.d, filelistVariables.TmpDcryptFilelistFile);
+                        Console.WriteLine("Finished decrypting filelist file\n");
+
+                        filelistVariables.MainFilelistFile = filelistVariables.TmpDcryptFilelistFile;
+                        break;
+                }
             }
         }
 
@@ -82,7 +119,7 @@ namespace WhiteBinTools.FilelistClasses
         }
 
 
-        public static void EncryptProcess(RepackProcesses repackVariables)
+        public static void EncryptProcess(RepackVariables repackVariables)
         {
             var filelistDataSize = (uint)0;
 
@@ -134,39 +171,14 @@ namespace WhiteBinTools.FilelistClasses
                 {
                     filelistToEncrypt.Seek(0, SeekOrigin.Begin);
 
-                    filelistToEncryptWriter.AdjustBytesUInt32(16, filelistDataSize, CmnEnums.Endianness.BigEndian);
-                    filelistToEncryptWriter.AdjustBytesUInt32((uint)filelistToEncrypt.Length - 16, filelistDataSize, CmnEnums.Endianness.LittleEndian);
+                    filelistToEncryptWriter.ExWriteBytesUInt32(16, filelistDataSize, Endianness.BigEndian);
+                    filelistToEncryptWriter.ExWriteBytesUInt32((uint)filelistToEncrypt.Length - 16, filelistDataSize, Endianness.LittleEndian);
                 }
             }
 
-
-            // Write checksum to the filelist file
-            filelistDataSize += 32;
-            var asciiSize = filelistDataSize.ToString("x8");
-            var cryptCheckSumCode = " write";
-            var checkSumActionArg = " " + asciiSize + cryptCheckSumCode;
-            FFXiiiCryptTool(" -c ", "\"" + repackVariables.NewFilelistFile + "\"", ref checkSumActionArg);
-            Console.WriteLine("\nFinished writing checksum for new filelist");
-
-
             // Encrypt the filelist file
-            var cryptFilelistCode = " filelist";
-            FFXiiiCryptTool(" -e ", "\"" + repackVariables.NewFilelistFile + "\"", ref cryptFilelistCode);
+            CryptFilelist.ProcessFilelist(CryptActions.e, repackVariables.NewFilelistFile);
             Console.WriteLine("\nFinished encrypting new filelist");
-        }
-
-
-        static void FFXiiiCryptTool(string actionSwitch, string filelistName, ref string actionType)
-        {
-            using (Process xiiiCrypt = new Process())
-            {
-                xiiiCrypt.StartInfo.WorkingDirectory = AppDomain.CurrentDomain.BaseDirectory;
-                xiiiCrypt.StartInfo.FileName = "ffxiiicrypt.exe";
-                xiiiCrypt.StartInfo.Arguments = actionSwitch + filelistName + actionType;
-                xiiiCrypt.StartInfo.UseShellExecute = true;
-                xiiiCrypt.Start();
-                xiiiCrypt.WaitForExit();
-            }
         }
     }
 }

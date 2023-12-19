@@ -1,6 +1,6 @@
 ﻿namespace WhiteBinTools.UnpackClasses
 {
-    public partial class UnpackProcess
+    public class UnpackVariables
     {
         public string WhiteBinName;
         public string InBinFileDir;

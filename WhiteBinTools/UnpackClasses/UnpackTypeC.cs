@@ -2,18 +2,19 @@
 using System.IO;
 using WhiteBinTools.FilelistClasses;
 using WhiteBinTools.SupportClasses;
+using static WhiteBinTools.SupportClasses.ProgramEnums;
 
 namespace WhiteBinTools.UnpackClasses
 {
     public class UnpackTypeC
     {
-        public static void UnpackFilelistPaths(CmnEnums.GameCodes gameCodeVar, string filelistFileVar)
+        public static void UnpackFilelistPaths(GameCodes gameCode, string filelistFile)
         {
-            var filelistVariables = new FilelistProcesses();
+            var filelistVariables = new FilelistVariables();
 
-            FilelistProcesses.PrepareFilelistVars(filelistVariables, filelistFileVar);
+            FilelistProcesses.PrepareFilelistVars(filelistVariables, filelistFile);
 
-            var filelistOutName = Path.GetFileName(filelistFileVar);
+            var filelistOutName = Path.GetFileName(filelistFile);
             filelistVariables.DefaultChunksExtDir = filelistVariables.MainFilelistDirectory + "\\_chunks";
             filelistVariables.ChunkFile = filelistVariables.DefaultChunksExtDir + "\\chunk_";
             var outChunkFile = filelistVariables.MainFilelistDirectory + "\\" + filelistOutName + ".txt";
@@ -25,21 +26,21 @@ namespace WhiteBinTools.UnpackClasses
             outChunkFile.IfFileExistsDel();
 
 
-            FilelistProcesses.DecryptProcess(gameCodeVar, filelistVariables);
+            FilelistProcesses.DecryptProcess(gameCode, filelistVariables);
 
-            using (var filelist = new FileStream(filelistVariables.MainFilelistFile, FileMode.Open, FileAccess.Read))
+            using (var filelistStream = new FileStream(filelistVariables.MainFilelistFile, FileMode.Open, FileAccess.Read))
             {
-                using (var filelistReader = new BinaryReader(filelist))
+                using (var filelistReader = new BinaryReader(filelistStream))
                 {
-                    FilelistProcesses.GetFilelistOffsets(filelistReader, filelistVariables);
-                    FilelistProcesses.UnpackChunks(filelist, filelistVariables.ChunkFile, filelistVariables);
+                    FilelistChunksPrep.GetFilelistOffsets(filelistReader, filelistVariables);
+                    FilelistChunksPrep.UnpackChunks(filelistStream, filelistVariables.ChunkFile, filelistVariables);
                 }
             }
 
-            if (filelistVariables.IsEncrypted.Equals(true))
+            if (filelistVariables.IsEncrypted)
             {
                 filelistVariables.TmpDcryptFilelistFile.IfFileExistsDel();
-                filelistVariables.MainFilelistFile = filelistFileVar;
+                filelistVariables.MainFilelistFile = filelistFile;
             }
 
 
@@ -51,14 +52,14 @@ namespace WhiteBinTools.UnpackClasses
                 var filesInChunkCount = FilelistProcesses.GetFilesInChunkCount(filelistVariables.ChunkFile + filelistVariables.ChunkFNameCount);
 
                 // Open a chunk file for reading
-                using (var currentChunk = new FileStream(filelistVariables.ChunkFile + filelistVariables.ChunkFNameCount, FileMode.Open, FileAccess.Read))
+                using (var currentChunkStream = new FileStream(filelistVariables.ChunkFile + filelistVariables.ChunkFNameCount, FileMode.Open, FileAccess.Read))
                 {
-                    using (var chunkStringReader = new BinaryReader(currentChunk))
+                    using (var chunkStringReader = new BinaryReader(currentChunkStream))
                     {
 
-                        using (var outChunk = new FileStream(outChunkFile, FileMode.Append, FileAccess.Write))
+                        using (var outChunkStream = new FileStream(outChunkFile, FileMode.Append, FileAccess.Write))
                         {
-                            using (var outChunkWriter = new StreamWriter(outChunk))
+                            using (var outChunkWriter = new StreamWriter(outChunkStream))
                             {
 
                                 var chunkStringReaderPos = (uint)0;

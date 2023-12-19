@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Text;
+using static WhiteBinTools.SupportClasses.ProgramEnums;
 
 namespace WhiteBinTools.SupportClasses
 {
@@ -20,7 +21,7 @@ namespace WhiteBinTools.SupportClasses
         }
 
 
-        public static void AdjustBytesUInt16(this BinaryWriter writerName, uint writerPos, ushort adjustVal)
+        public static void ExWriteBytesUInt16(this BinaryWriter writerName, uint writerPos, ushort adjustVal)
         {
             writerName.BaseStream.Position = writerPos;
             var adjustValBytes = BitConverter.GetBytes(adjustVal);
@@ -28,18 +29,18 @@ namespace WhiteBinTools.SupportClasses
         }
 
 
-        public static void AdjustBytesUInt32(this BinaryWriter writerName, uint writerPos, uint adjustVal, CmnEnums.Endianness endiannessVar)
+        public static void ExWriteBytesUInt32(this BinaryWriter writerName, uint writerPos, uint adjustVal, Endianness endianness)
         {
             writerName.BaseStream.Position = writerPos;
             var adjustValBytes = new byte[4];
 
-            switch (endiannessVar)
+            switch (endianness)
             {
-                case CmnEnums.Endianness.LittleEndian:
+                case Endianness.LittleEndian:
                     adjustValBytes = BitConverter.GetBytes(adjustVal);
                     break;
 
-                case CmnEnums.Endianness.BigEndian:
+                case Endianness.BigEndian:
                     adjustValBytes = BitConverter.GetBytes(adjustVal);
                     Array.Reverse(adjustValBytes, 0, adjustValBytes.Length);
                     break;
