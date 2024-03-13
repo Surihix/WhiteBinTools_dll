@@ -15,7 +15,7 @@ namespace WhiteBinTools.RepackClasses
 
             FilelistProcesses.PrepareFilelistVars(filelistVariables, filelistFile);
 
-            var extractedDir = Path.GetDirectoryName(whiteBinFile) + "\\_" + Path.GetFileName(whiteBinFile);
+            var extractedDir = Path.Combine(Path.GetDirectoryName(whiteBinFile), "_" + Path.GetFileName(whiteBinFile));
             RepackProcesses.PrepareRepackVars(repackVariables, filelistFile, filelistVariables, extractedDir);
 
             filelistVariables.DefaultChunksExtDir.IfDirExistsDel();
@@ -80,7 +80,7 @@ namespace WhiteBinTools.RepackClasses
                                     repackVariables.AsciiCmpSize = repackVariables.ConvertedOgStringData[2];
 
                                     // Repack a specific file
-                                    var currentFilePath = repackVariables.OgDirectoryPath + "\\" + repackVariables.OgFileName;
+                                    var currentFilePath = Path.Combine(repackVariables.OgDirectoryPath, repackVariables.OgFileName);
                                     if (currentFilePath == whiteFilePath)
                                     {
                                         switch (repackVariables.WasCompressed)
@@ -117,7 +117,7 @@ namespace WhiteBinTools.RepackClasses
                                                 break;
                                         }
 
-                                        Console.WriteLine(repackVariables.RepackState + " " + repackVariables.NewWhiteBinFileName + "\\" + repackVariables.RepackLogMsg + " " + packedAs);
+                                        Console.WriteLine(repackVariables.RepackState + " " + Path.Combine(repackVariables.NewWhiteBinFileName, repackVariables.RepackLogMsg) + " " + packedAs);
                                     }
 
                                     updChunkStringsWriter.Write(repackVariables.AsciiFilePos + ":");

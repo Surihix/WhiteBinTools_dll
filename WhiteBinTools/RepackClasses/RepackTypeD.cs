@@ -13,9 +13,9 @@ namespace WhiteBinTools
     {
         public static void RepackFilelist(GameCodes gameCode, string extractedFilelistDir)
         {
-            var countsFile = extractedFilelistDir + "\\~Counts.txt";
-            var encHeaderFile = extractedFilelistDir + "\\EncryptionHeader_(DON'T DELETE)";
-            var outChunksDir = extractedFilelistDir + "\\_chunks";
+            var countsFile = Path.Combine(extractedFilelistDir, "~Counts.txt");
+            var encHeaderFile = Path.Combine(extractedFilelistDir, "EncryptionHeader_(DON'T DELETE)");
+            var outChunksDir = Path.Combine(extractedFilelistDir, "_chunks");
 
             var filelistVariables = new FilelistVariables();
             if (File.Exists(encHeaderFile))
@@ -98,8 +98,8 @@ namespace WhiteBinTools
 
                     for (int c = 0; c < filelistVariables.TotalChunks; c++)
                     {
-                        var currentChunkFile = extractedFilelistDir + "\\" + $"Chunk_{filelistVariables.ChunkFNameCount}.txt";
-                        var outChunkFile = outChunksDir + "\\" + $"Chunk_{filelistVariables.ChunkFNameCount}";
+                        var currentChunkFile = Path.Combine(extractedFilelistDir, $"Chunk_{filelistVariables.ChunkFNameCount}.txt");
+                        var outChunkFile = Path.Combine(outChunksDir, $"Chunk_{filelistVariables.ChunkFNameCount}");
 
                         using (var currentChunkReader = new StreamReader(currentChunkFile))
                         {
@@ -190,7 +190,7 @@ namespace WhiteBinTools
 
                         for (int fc = 0; fc < filelistVariables.TotalChunks; fc++)
                         {
-                            var currentChunkFile = outChunksDir + "\\" + $"Chunk_{filelistVariables.ChunkFNameCount}";
+                            var currentChunkFile = Path.Combine(outChunksDir, $"Chunk_{filelistVariables.ChunkFNameCount}");
                             var uncmpSize = (uint)new FileInfo(currentChunkFile).Length;
 
                             var cmpChunkArray = currentChunkFile.ZlibCompress();

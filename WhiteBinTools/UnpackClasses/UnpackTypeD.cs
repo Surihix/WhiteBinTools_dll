@@ -15,8 +15,8 @@ namespace WhiteBinTools
             FilelistProcesses.PrepareFilelistVars(filelistVariables, filelistFile);
 
             var filelistOutName = Path.GetFileName(filelistFile);
-            var extractedFilelistDir = filelistVariables.MainFilelistDirectory + "\\_" + filelistOutName;
-            var outChunkFile = extractedFilelistDir + "\\Chunk_";
+            var extractedFilelistDir = Path.Combine(filelistVariables.MainFilelistDirectory, "_" + filelistOutName);
+            var outChunkFile = Path.Combine(extractedFilelistDir, "Chunk_");
 
             extractedFilelistDir.IfDirExistsDel();
             Directory.CreateDirectory(extractedFilelistDir);
@@ -32,13 +32,13 @@ namespace WhiteBinTools
 
                     if (filelistVariables.IsEncrypted)
                     {
-                        using (var encHeader = new FileStream(extractedFilelistDir + "\\EncryptionHeader_(DON'T DELETE)", FileMode.OpenOrCreate, FileAccess.Write))
+                        using (var encHeader = new FileStream(Path.Combine(extractedFilelistDir, "EncryptionHeader_(DON'T DELETE)"), FileMode.OpenOrCreate, FileAccess.Write))
                         {
                             filelistStream.ExCopyTo(encHeader, 0, 32);
                         }
                     }
 
-                    using (var countsStream = new StreamWriter(extractedFilelistDir + "\\~Counts.txt", true))
+                    using (var countsStream = new StreamWriter(Path.Combine(extractedFilelistDir, "~Counts.txt"), true))
                     {
                         countsStream.WriteLine(filelistVariables.TotalFiles);
                         countsStream.WriteLine(filelistVariables.TotalChunks);

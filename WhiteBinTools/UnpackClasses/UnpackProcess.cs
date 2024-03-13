@@ -25,7 +25,7 @@ namespace WhiteBinTools.UnpackClasses
             filelistVariables.Position = Convert.ToUInt32(filelistVariables.ConvertedStringData[0], 16) * 2048;
             filelistVariables.UnCmpSize = Convert.ToUInt32(filelistVariables.ConvertedStringData[1], 16);
             filelistVariables.CmpSize = Convert.ToUInt32(filelistVariables.ConvertedStringData[2], 16);
-            filelistVariables.MainPath = filelistVariables.ConvertedStringData[3].Replace("/", "\\");
+            filelistVariables.MainPath = filelistVariables.ConvertedStringData[3].Replace("/", Convert.ToString(Path.DirectorySeparatorChar));
             filelistVariables.IsCompressed = false;
 
             if (filelistVariables.MainPath == " ")
@@ -33,14 +33,14 @@ namespace WhiteBinTools.UnpackClasses
                 filelistVariables.NoPathFileCount++;
                 filelistVariables.DirectoryPath = "noPath";
                 filelistVariables.FileName = "FILE_" + filelistVariables.NoPathFileCount;
-                filelistVariables.FullFilePath = extractDir + "\\" + filelistVariables.DirectoryPath + "\\" + filelistVariables.FileName;
-                filelistVariables.MainPath = filelistVariables.DirectoryPath + "\\" + filelistVariables.FileName;
+                filelistVariables.FullFilePath = Path.Combine(extractDir, filelistVariables.DirectoryPath, filelistVariables.FileName);
+                filelistVariables.MainPath = Path.Combine(filelistVariables.DirectoryPath, filelistVariables.FileName);
             }
             else
             {
                 filelistVariables.DirectoryPath = Path.GetDirectoryName(filelistVariables.MainPath);
                 filelistVariables.FileName = Path.GetFileName(filelistVariables.MainPath);
-                filelistVariables.FullFilePath = extractDir + "\\" + filelistVariables.DirectoryPath + "\\" + filelistVariables.FileName;
+                filelistVariables.FullFilePath = Path.Combine(extractDir, filelistVariables.DirectoryPath, filelistVariables.FileName);
             }
 
             if (filelistVariables.UnCmpSize != filelistVariables.CmpSize)

@@ -14,11 +14,11 @@ namespace WhiteBinTools.RepackClasses
             repackVariables.NewWhiteBinFileName = Path.GetFileName(extractedDir).Remove(0, 1);
             repackVariables.NewWhiteBinFile = Path.Combine(Path.GetDirectoryName(extractedDir), repackVariables.NewWhiteBinFileName);
 
-            filelistVariables.DefaultChunksExtDir = extractedDir + "\\_chunks";
-            filelistVariables.ChunkFile = filelistVariables.DefaultChunksExtDir + "\\chunk_";
+            filelistVariables.DefaultChunksExtDir = Path.Combine(extractedDir, "_chunks");
+            filelistVariables.ChunkFile = Path.Combine(filelistVariables.DefaultChunksExtDir, "chunk_");
 
-            repackVariables.NewChunksExtDir = extractedDir + "\\_newChunks";
-            repackVariables.NewChunkFile = repackVariables.NewChunksExtDir + "\\newChunk_";
+            repackVariables.NewChunksExtDir = Path.Combine(extractedDir, "_newChunks");
+            repackVariables.NewChunkFile = Path.Combine(repackVariables.NewChunksExtDir, "newChunk_");
         }
 
 
@@ -36,21 +36,21 @@ namespace WhiteBinTools.RepackClasses
             repackVariables.OgFilePos = Convert.ToUInt32(repackVariables.ConvertedOgStringData[0], 16) * 2048;
             repackVariables.OgUnCmpSize = Convert.ToUInt32(repackVariables.ConvertedOgStringData[1], 16);
             repackVariables.OgCmpSize = Convert.ToUInt32(repackVariables.ConvertedOgStringData[2], 16);
-            repackVariables.OgMainPath = repackVariables.ConvertedOgStringData[3];
+            repackVariables.OgMainPath = repackVariables.ConvertedOgStringData[3].Replace("/", Convert.ToString(Path.DirectorySeparatorChar));
 
             if (repackVariables.OgMainPath == " ")
             {
                 repackVariables.OgNoPathFileCount++;
                 repackVariables.OgDirectoryPath = "noPath";
                 repackVariables.OgFileName = "FILE_" + repackVariables.OgNoPathFileCount;
-                repackVariables.OgFullFilePath = extractedDir + "\\" + repackVariables.OgDirectoryPath + "\\" + repackVariables.OgFileName;
+                repackVariables.OgFullFilePath = Path.Combine(extractedDir, repackVariables.OgDirectoryPath, repackVariables.OgFileName);
                 repackVariables.RepackPathInChunk = " ";
             }
             else
             {
                 repackVariables.OgDirectoryPath = Path.GetDirectoryName(repackVariables.OgMainPath);
                 repackVariables.OgFileName = Path.GetFileName(repackVariables.OgMainPath);
-                repackVariables.OgFullFilePath = extractedDir + "\\" + repackVariables.OgDirectoryPath + "\\" + repackVariables.OgFileName;
+                repackVariables.OgFullFilePath = Path.Combine(extractedDir, repackVariables.OgDirectoryPath, repackVariables.OgFileName);
                 repackVariables.RepackPathInChunk = repackVariables.OgMainPath;
             }
 
@@ -65,7 +65,7 @@ namespace WhiteBinTools.RepackClasses
                 repackVariables.RepackState = "Copied";
             }
 
-            repackVariables.RepackLogMsg = repackVariables.OgDirectoryPath + "\\" + repackVariables.OgFileName;
+            repackVariables.RepackLogMsg = Path.Combine(repackVariables.OgDirectoryPath, repackVariables.OgFileName);
         }
 
 

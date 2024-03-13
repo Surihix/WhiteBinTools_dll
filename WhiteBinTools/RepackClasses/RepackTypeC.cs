@@ -79,8 +79,8 @@ namespace WhiteBinTools.RepackClasses
                                     repackVariables.AsciiCmpSize = repackVariables.ConvertedOgStringData[2];
 
                                     // Repack a specific file
-                                    var currentFileInProcess = repackVariables.OgDirectoryPath + "\\" + repackVariables.OgFileName;
-                                    if (File.Exists(whiteExtractedDir + "\\" + currentFileInProcess))
+                                    var currentFileInProcess = Path.Combine(repackVariables.OgDirectoryPath, repackVariables.OgFileName);
+                                    if (File.Exists(Path.Combine(whiteExtractedDir, currentFileInProcess)))
                                     {
                                         switch (repackVariables.WasCompressed)
                                         {
@@ -116,7 +116,7 @@ namespace WhiteBinTools.RepackClasses
                                                 break;
                                         }
 
-                                        Console.WriteLine(repackVariables.RepackState + " " + repackVariables.NewWhiteBinFileName + "\\" + repackVariables.RepackLogMsg + " " + packedAs);
+                                        Console.WriteLine(repackVariables.RepackState + " " + Path.Combine(repackVariables.NewWhiteBinFileName, repackVariables.RepackLogMsg)  + " " + packedAs);
                                     }
 
                                     updChunkStringsWriter.Write(repackVariables.AsciiFilePos + ":");
