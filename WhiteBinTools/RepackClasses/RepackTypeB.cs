@@ -46,7 +46,8 @@ namespace WhiteBinTools.RepackClasses
 
 
             filelistVariables.ChunkFNameCount = 0;
-            repackVariables.LastChunkFileNumber = 0;
+            repackVariables.LastChunkFileNumber = filelistVariables.TotalChunks - 1;
+
             for (int ch = 0; ch < filelistVariables.TotalChunks; ch++)
             {
                 var filesInChunkCount = FilelistProcesses.GetFilesInChunkCount(filelistVariables.ChunkFile + filelistVariables.ChunkFNameCount);
@@ -68,8 +69,8 @@ namespace WhiteBinTools.RepackClasses
                                     var convertedString = chunkStringReader.BinaryToString(chunkStringReaderPos);
                                     if (convertedString == "end")
                                     {
+                                        repackVariables.HasEndString = true;
                                         updChunkStringsWriter.Write("end\0");
-                                        repackVariables.LastChunkFileNumber = filelistVariables.ChunkFNameCount;
                                         break;
                                     }
 
