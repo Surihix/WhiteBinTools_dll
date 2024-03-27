@@ -127,7 +127,7 @@ namespace WhiteBinTools.UnpackClasses
             if (!hasExtracted)
             {
                 Console.WriteLine("Specified directory does not exist. please specify the correct directory");
-                Console.WriteLine("\nFinished extracting file from " + "\"" + unpackVariables.WhiteBinName + "\"");
+                Console.WriteLine("\nFinished extracting files from " + "\"" + unpackVariables.WhiteBinName + "\"");
             }
             else
             {
