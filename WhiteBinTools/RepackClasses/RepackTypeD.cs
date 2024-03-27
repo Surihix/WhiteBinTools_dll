@@ -3,11 +3,10 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using WhiteBinTools.FilelistClasses;
-using WhiteBinTools.RepackClasses;
 using WhiteBinTools.SupportClasses;
 using static WhiteBinTools.SupportClasses.ProgramEnums;
 
-namespace WhiteBinTools
+namespace WhiteBinTools.RepackClasses
 {
     public class RepackTypeD
     {

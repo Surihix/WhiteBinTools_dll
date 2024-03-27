@@ -8,22 +8,27 @@ namespace WhiteBinTools.UnpackClasses
 {
     public class UnpackTypeC
     {
-        public static void UnpackFilelistPaths(GameCodes gameCode, string filelistFile)
+        public static void UnpackMultiple(GameCodes gameCode, string filelistFile, string whiteBinFile, string whiteVirtualDirPath)
         {
+            whiteVirtualDirPath = whiteVirtualDirPath.Replace("*", "");
+
             var filelistVariables = new FilelistVariables();
+            var unpackVariables = new UnpackVariables();
 
             FilelistProcesses.PrepareFilelistVars(filelistVariables, filelistFile);
+            UnpackProcess.PrepareBinVars(whiteBinFile, unpackVariables);
 
-            var filelistOutName = Path.GetFileName(filelistFile);
-            filelistVariables.DefaultChunksExtDir = Path.Combine(filelistVariables.MainFilelistDirectory, "_chunks");
+            filelistVariables.DefaultChunksExtDir = Path.Combine(unpackVariables.ExtractDir, "_chunks");
             filelistVariables.ChunkFile = Path.Combine(filelistVariables.DefaultChunksExtDir, "chunk_");
-            var outChunkFile = Path.Combine(filelistVariables.MainFilelistDirectory, filelistOutName + ".txt");
 
+
+            if (!Directory.Exists(unpackVariables.ExtractDir))
+            {
+                Directory.CreateDirectory(unpackVariables.ExtractDir);
+            }
 
             filelistVariables.DefaultChunksExtDir.IfDirExistsDel();
             Directory.CreateDirectory(filelistVariables.DefaultChunksExtDir);
-
-            outChunkFile.IfFileExistsDel();
 
 
             FilelistProcesses.DecryptProcess(gameCode, filelistVariables);
@@ -44,10 +49,14 @@ namespace WhiteBinTools.UnpackClasses
             }
 
 
-            // Write all file paths strings
-            // to a text file
+            // Extracting a single file section 
             filelistVariables.ChunkFNameCount = 0;
-            for (int cf = 0; cf < filelistVariables.TotalChunks; cf++)
+            unpackVariables.CountDuplicates = 0;
+            var hasExtracted = false;
+            string[] currentPathDataArray;
+            string assembledDir;
+
+            for (int ch = 0; ch < filelistVariables.TotalChunks; ch++)
             {
                 var filesInChunkCount = FilelistProcesses.GetFilesInChunkCount(filelistVariables.ChunkFile + filelistVariables.ChunkFNameCount);
 
@@ -56,22 +65,56 @@ namespace WhiteBinTools.UnpackClasses
                 {
                     using (var chunkStringReader = new BinaryReader(currentChunkStream))
                     {
-
-                        using (var outChunkStream = new FileStream(outChunkFile, FileMode.Append, FileAccess.Write))
+                        var chunkStringReaderPos = (uint)0;
+                        for (int f = 0; f < filesInChunkCount; f++)
                         {
-                            using (var outChunkWriter = new StreamWriter(outChunkStream))
+                            var convertedString = chunkStringReader.BinaryToString(chunkStringReaderPos);
+
+                            if (convertedString.StartsWith("end"))
                             {
+                                break;
+                            }
 
-                                var chunkStringReaderPos = (uint)0;
-                                for (int f = 0; f < filesInChunkCount; f++)
+                            UnpackProcess.PrepareExtraction(convertedString, filelistVariables, unpackVariables.ExtractDir);
+
+                            // Extract files from a specific dir
+                            currentPathDataArray = filelistVariables.MainPath.Split('\\');
+                            assembledDir = string.Empty;
+
+                            foreach (var dir in currentPathDataArray)
+                            {
+                                assembledDir += dir;
+                                assembledDir += "\\";
+
+                                if (assembledDir == whiteVirtualDirPath)
                                 {
-                                    var convertedString = chunkStringReader.BinaryToString(chunkStringReaderPos);
-
-                                    outChunkWriter.WriteLine(convertedString);
-
-                                    chunkStringReaderPos = (uint)chunkStringReader.BaseStream.Position;
+                                    break;
                                 }
                             }
+
+                            if (assembledDir == whiteVirtualDirPath)
+                            {
+                                using (var whiteBinStream = new FileStream(whiteBinFile, FileMode.Open, FileAccess.Read))
+                                {
+                                    if (!Directory.Exists(Path.Combine(unpackVariables.ExtractDir, filelistVariables.DirectoryPath)))
+                                    {
+                                        Directory.CreateDirectory(Path.Combine(unpackVariables.ExtractDir, filelistVariables.DirectoryPath));
+                                    }
+                                    if (File.Exists(filelistVariables.FullFilePath))
+                                    {
+                                        File.Delete(filelistVariables.FullFilePath);
+                                        unpackVariables.CountDuplicates++;
+                                    }
+
+                                    UnpackProcess.UnpackFile(filelistVariables, whiteBinStream, unpackVariables);
+                                }
+
+                                hasExtracted = true;
+
+                                Console.WriteLine(unpackVariables.UnpackedState + " _" + Path.Combine(unpackVariables.ExtractDirName, filelistVariables.MainPath));
+                            }
+
+                            chunkStringReaderPos = (uint)chunkStringReader.BaseStream.Position;
                         }
                     }
                 }
@@ -81,7 +124,20 @@ namespace WhiteBinTools.UnpackClasses
 
             Directory.Delete(filelistVariables.DefaultChunksExtDir, true);
 
-            Console.WriteLine("\nExtracted filepaths to " + filelistOutName + ".txt file");
+            if (!hasExtracted)
+            {
+                Console.WriteLine("Specified directory does not exist. please specify the correct directory");
+                Console.WriteLine("\nFinished extracting file from " + "\"" + unpackVariables.WhiteBinName + "\"");
+            }
+            else
+            {
+                Console.WriteLine("\nFinished extracting files from " + "\"" + unpackVariables.WhiteBinName + "\"");
+
+                if (unpackVariables.CountDuplicates > 0)
+                {
+                    Console.WriteLine(unpackVariables.CountDuplicates + " duplicate file(s)");
+                }
+            }
         }
     }
 }

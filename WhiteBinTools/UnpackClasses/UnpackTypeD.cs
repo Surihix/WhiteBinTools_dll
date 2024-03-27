@@ -4,7 +4,7 @@ using WhiteBinTools.FilelistClasses;
 using WhiteBinTools.SupportClasses;
 using static WhiteBinTools.SupportClasses.ProgramEnums;
 
-namespace WhiteBinTools
+namespace WhiteBinTools.UnpackClasses
 {
     public class UnpackTypeD
     {
