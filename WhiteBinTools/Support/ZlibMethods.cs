@@ -3,7 +3,7 @@ using System.IO;
 
 namespace WhiteBinTools.Support
 {
-    internal static class ZlibMethods
+    internal class ZlibMethods
     {
         public static void ZlibDecompress(Stream cmpStreamName, Stream outStreamName)
         {

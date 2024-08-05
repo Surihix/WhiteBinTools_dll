@@ -3,7 +3,7 @@ using System.IO;
 
 namespace WhiteBinTools.Support
 {
-    internal static class CommonMethods
+    internal class CommonMethods
     {
         public static void ErrorExit(string errorMsg)
         {
