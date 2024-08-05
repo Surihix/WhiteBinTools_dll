@@ -1,6 +1,6 @@
 ﻿using System.IO;
 using System.Text;
-using static WhiteBinTools.Support.WhiteBinEnums;
+using static WhiteBinTools.Support.LibaryEnums;
 
 namespace WhiteBinTools.Filelist
 {

@@ -85,7 +85,7 @@
     <Compile Include="WhiteBinTools\Support\Extensions\BinaryReaderHelpers.cs" />
     <Compile Include="WhiteBinTools\Support\Extensions\BinaryWriterHelpers.cs" />
     <Compile Include="WhiteBinTools\Support\CommonMethods.cs" />
-    <Compile Include="WhiteBinTools\Support\WhiteBinEnums.cs" />
+    <Compile Include="WhiteBinTools\Support\LibaryEnums.cs" />
     <Compile Include="WhiteBinTools\Support\Extensions\StreamHelpers.cs" />
     <Compile Include="WhiteBinTools\Support\ZlibMethods.cs" />
     <Compile Include="WhiteBinTools\Unpack\UnpackProcesses.cs" />

@@ -3,7 +3,7 @@ using System.IO;
 using WhiteBinTools.Crypto;
 using WhiteBinTools.Repack;
 using WhiteBinTools.Support;
-using static WhiteBinTools.Support.WhiteBinEnums;
+using static WhiteBinTools.Support.LibaryEnums;
 
 namespace WhiteBinTools.Filelist
 {

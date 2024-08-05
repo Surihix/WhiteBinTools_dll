@@ -1,6 +1,6 @@
 ﻿namespace WhiteBinTools.Support
 {
-    public class WhiteBinEnums
+    public class LibaryEnums
     {
         public enum GameCodes
         {
