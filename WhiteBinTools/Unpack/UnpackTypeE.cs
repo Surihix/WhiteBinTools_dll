@@ -14,8 +14,7 @@ namespace WhiteBinTools.Unpack
 
             FilelistProcesses.PrepareFilelistVars(filelistVariables, filelistFile);
 
-            var filelistOutName = Path.GetFileName(filelistFile);
-            var outJsonFile = Path.Combine(filelistVariables.MainFilelistDirectory, filelistOutName + ".json");
+            var outJsonFile = Path.Combine(filelistVariables.MainFilelistDirectory, Path.GetFileName(filelistFile) + ".json");
 
             CommonMethods.IfFileExistsDel(outJsonFile);
 
