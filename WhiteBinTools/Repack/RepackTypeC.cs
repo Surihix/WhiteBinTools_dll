@@ -59,6 +59,8 @@ namespace WhiteBinTools.Repack
             RepackProcesses.CreateEmptyNewChunksDict(filelistVariables, newChunksDict);
 
 
+            var hasPacked = false;
+
             using (var entriesStream = new MemoryStream())
             {
                 entriesStream.Write(filelistVariables.EntriesData, 0, filelistVariables.EntriesData.Length);
@@ -117,6 +119,8 @@ namespace WhiteBinTools.Repack
                                 }
                             }
 
+                            hasPacked = true;
+
                             Console.WriteLine(repackVariables.RepackState + " " + Path.Combine(repackVariables.NewWhiteBinFileName, repackVariables.RepackLogMsg) + " " + packedAs);
                         }
 
@@ -134,7 +138,14 @@ namespace WhiteBinTools.Repack
                 FilelistCrypto.EncryptProcess(repackVariables);
             }
 
-            Console.WriteLine("\nFinished repacking multiple files into " + "\"" + repackVariables.NewWhiteBinFileName + "\"");
+            if (hasPacked)
+            {
+                Console.WriteLine($"\nFinished repacking multiple files into \"{repackVariables.NewWhiteBinFileName}\"");
+            }
+            else
+            {
+                Console.WriteLine("Specified directory does not exist. please specify the correct directory.");
+            }
         }
     }
 }

@@ -116,7 +116,7 @@ namespace WhiteBinTools.Repack
                 FilelistCrypto.EncryptProcess(repackVariables);
             }
 
-            Console.WriteLine("\nFinished repacking files to " + "\"" + repackVariables.NewWhiteBinFileName + "\"");
+            Console.WriteLine($"\nFinished repacking files to \"{repackVariables.NewWhiteBinFileName}\"");
         }
     }
 }

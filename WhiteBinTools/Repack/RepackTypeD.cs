@@ -160,7 +160,7 @@ namespace WhiteBinTools.Repack
                 FilelistCrypto.EncryptProcess(repackVariables);
             }
 
-            Console.WriteLine("\n\nFinished repacking filelist data into " + "\"" + Path.GetFileName(repackVariables.NewFilelistFile) + "\"");
+            Console.WriteLine($"\n\nFinished repacking filelist data to \"{Path.GetFileName(repackVariables.NewFilelistFile)}\"");
         }
     }
 }

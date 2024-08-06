@@ -89,7 +89,7 @@ namespace WhiteBinTools.Unpack
             }
 
 
-            Console.WriteLine("\nFinished unpacking " + "\"" + unpackVariables.WhiteBinName + "\"");
+            Console.WriteLine($"\nFinished unpacking \"{unpackVariables.WhiteBinName}\"");
 
             if (unpackVariables.CountDuplicates > 1)
             {

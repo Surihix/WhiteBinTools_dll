@@ -92,18 +92,18 @@ namespace WhiteBinTools.Unpack
                 }
             }
 
-            if (!hasExtracted)
+            if (hasExtracted)
             {
-                Console.WriteLine("Specified file does not exist. please specify the correct file path.");
-            }
-            else
-            {
-                Console.WriteLine("\nFinished unpacking file from " + "\"" + unpackVariables.WhiteBinName + "\"");
-
+                Console.WriteLine($"\nFinished unpacking file from \"{unpackVariables.WhiteBinName}\"");
+                
                 if (unpackVariables.CountDuplicates > 0)
                 {
                     Console.WriteLine(unpackVariables.CountDuplicates + " duplicate file(s)");
                 }
+            }
+            else
+            {
+                Console.WriteLine("Specified file does not exist. please specify the correct file path.");
             }
         }
     }

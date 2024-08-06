@@ -129,7 +129,7 @@ namespace WhiteBinTools.Unpack
                 }
             }
 
-            Console.WriteLine("\nFinished unpacking " + "\"" + Path.GetFileName(filelistFile) + "\"");
+            Console.WriteLine($"\nFinished unpacking \"{filelistOutName}\"");
         }
     }
 }

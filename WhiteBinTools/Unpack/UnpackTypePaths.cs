@@ -70,7 +70,7 @@ namespace WhiteBinTools.Unpack
                 }
             }
 
-            Console.WriteLine("\nFinished writing filepaths to " + "\"" + Path.GetFileName(outTxtFile) + "\"");
+            Console.WriteLine($"\nFinished writing filepaths to \"{Path.GetFileName(outTxtFile)}\"");
         }
     }
 }
