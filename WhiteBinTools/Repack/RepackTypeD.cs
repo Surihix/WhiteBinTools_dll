@@ -91,6 +91,9 @@ namespace WhiteBinTools.Repack
             Console.WriteLine("TotalChunks: " + filelistVariables.TotalChunks);
             Console.WriteLine("No of files: " + filelistVariables.TotalFiles + "\n");
 
+            // Begin building the filelist
+            Console.WriteLine("\n\nBuilding filelist....");
+
             var repackVariables = new RepackVariables();
             repackVariables.NewFilelistFile = Path.Combine(Path.GetDirectoryName(extractedFilelistDir), Path.GetFileName(extractedFilelistDir).Remove(0, 1));
 
@@ -105,8 +108,6 @@ namespace WhiteBinTools.Repack
             }
 
             CommonMethods.IfFileExistsDel(repackVariables.NewFilelistFile);
-
-            Console.WriteLine("\n\nBuilding filelist....");
 
             // Build an empty dictionary
             // for the chunks 
