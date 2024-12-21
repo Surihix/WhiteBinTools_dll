@@ -21,7 +21,7 @@ namespace WhiteBinTools.Filelist
             entriesReader.BaseStream.Position = entriesReadPos;
             filelistVariables.FileCode = entriesReader.ReadUInt32();
 
-            if (gameCode.Equals(GameCodes.ff131))
+            if (gameCode == GameCodes.ff131)
             {
                 filelistVariables.ChunkNumber = entriesReader.ReadUInt16();
                 filelistVariables.PathStringPos = entriesReader.ReadUInt16();
@@ -29,11 +29,11 @@ namespace WhiteBinTools.Filelist
 
                 GeneratePathString(filelistVariables.PathStringPos, filelistVariables.ChunkDataDict[filelistVariables.ChunkNumber], filelistVariables);
             }
-            else if (gameCode.Equals(GameCodes.ff132))
+            else if (gameCode == GameCodes.ff132)
             {
                 filelistVariables.PathStringPos = entriesReader.ReadUInt16();
                 filelistVariables.ChunkNumber = entriesReader.ReadByte();
-                filelistVariables.UnkEntryVal = entriesReader.ReadByte();
+                filelistVariables.FileTypeID = entriesReader.ReadByte();
                 filelistVariables.LastChunkNumber = filelistVariables.CurrentChunkNumber;
 
                 if (filelistVariables.PathStringPos == 0)

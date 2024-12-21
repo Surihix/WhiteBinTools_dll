@@ -8,7 +8,7 @@ namespace WhiteBinTools.Support
         public static void ErrorExit(string errorMsg)
         {
             Console.WriteLine(errorMsg);
-            Environment.Exit(1);
+            throw new Exception(errorMsg);
         }
 
 
