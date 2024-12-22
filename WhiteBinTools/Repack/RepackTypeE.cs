@@ -21,13 +21,13 @@ namespace WhiteBinTools.Repack
                 if (gameCode == GameCodes.ff132)
                 {
                     // Determine encryption status
-                    filelistVariables.IsEncrypted = bool.Parse(CheckGetMainProperty(jsonReader, "\"encrypted\"", "Boolean"));
+                    filelistVariables.IsEncrypted = bool.Parse(CheckGetMainProperty(jsonReader, "\"encrypted\"", ValueTypes.Boolean));
 
                     if (filelistVariables.IsEncrypted)
                     {
-                        filelistVariables.SeedA = ulong.Parse(CheckGetMainProperty(jsonReader, "\"seedA\"", "Ulong"));
-                        filelistVariables.SeedB = ulong.Parse(CheckGetMainProperty(jsonReader, "\"seedB\"", "Ulong"));
-                        filelistVariables.EncTag = uint.Parse(CheckGetMainProperty(jsonReader, "\"encryptionTag(DO_NOT_CHANGE)\"", "Uint"));
+                        filelistVariables.SeedA = ulong.Parse(CheckGetMainProperty(jsonReader, "\"seedA\"", ValueTypes.Ulong));
+                        filelistVariables.SeedB = ulong.Parse(CheckGetMainProperty(jsonReader, "\"seedB\"", ValueTypes.Ulong));
+                        filelistVariables.EncTag = uint.Parse(CheckGetMainProperty(jsonReader, "\"encryptionTag(DO_NOT_CHANGE)\"", ValueTypes.Uint));
 
                         using (var encHeaderStream = new MemoryStream())
                         {
@@ -49,8 +49,8 @@ namespace WhiteBinTools.Repack
                     }
                 }
 
-                filelistVariables.TotalFiles = uint.Parse(CheckGetMainProperty(jsonReader, "\"fileCount\"", "Uint"));
-                filelistVariables.TotalChunks = uint.Parse(CheckGetMainProperty(jsonReader, "\"chunkCount\"", "Uint"));
+                filelistVariables.TotalFiles = uint.Parse(CheckGetMainProperty(jsonReader, "\"fileCount\"", ValueTypes.Uint));
+                filelistVariables.TotalChunks = uint.Parse(CheckGetMainProperty(jsonReader, "\"chunkCount\"", ValueTypes.Uint));
                 Console.WriteLine("TotalChunks: " + filelistVariables.TotalChunks);
                 Console.WriteLine("No of files: " + filelistVariables.TotalFiles + "\n");
 
@@ -143,7 +143,7 @@ namespace WhiteBinTools.Repack
                                 if (currentJsonLine == "{")
                                 {
                                     currentJsonLine = jsonReader.ReadLine().TrimStart(' ').TrimEnd(' ');
-                                    currentEntryPropertyValue = CheckGetChunkEntryProperty(currentJsonLine, "\"fileCode\"", c, "Uint");
+                                    currentEntryPropertyValue = CheckGetChunkEntryProperty(currentJsonLine, "\"fileCode\"", c, ValueTypes.Uint);
                                     filelistVariables.FileCode = uint.Parse(currentEntryPropertyValue);
 
                                     // Write filecode
@@ -163,7 +163,7 @@ namespace WhiteBinTools.Repack
                                     else if (gameCode == GameCodes.ff132)
                                     {
                                         currentJsonLine = jsonReader.ReadLine().TrimStart(' ').TrimEnd(' ');
-                                        currentEntryPropertyValue = CheckGetChunkEntryProperty(currentJsonLine, "\"fileTypeID\"", c, "Byte");
+                                        currentEntryPropertyValue = CheckGetChunkEntryProperty(currentJsonLine, "\"fileTypeID\"", c, ValueTypes.Byte);
                                         filelistVariables.FileTypeID = byte.Parse(currentEntryPropertyValue);
 
                                         entriesWriter.BaseStream.Position = entriesWriterPos + 4;
@@ -229,7 +229,16 @@ namespace WhiteBinTools.Repack
         }
 
 
-        private static string CheckGetMainProperty(StreamReader jsonReader, string expectedPropertyName, string valueType)
+        private enum ValueTypes
+        {
+            Boolean,
+            Byte,
+            Uint,
+            Ulong
+        }
+
+
+        private static string CheckGetMainProperty(StreamReader jsonReader, string expectedPropertyName, ValueTypes valueType)
         {
             var jsonPropertyVal = string.Empty;
 
@@ -244,7 +253,7 @@ namespace WhiteBinTools.Repack
 
             switch (valueType)
             {
-                case "Boolean":
+                case ValueTypes.Boolean:
                     if (bool.TryParse(propertyDataRead[1].TrimEnd(','), out bool boolVal))
                     {
                         isValidVal = true;
@@ -252,7 +261,7 @@ namespace WhiteBinTools.Repack
                     }
                     break;
 
-                case "Uint":
+                case ValueTypes.Uint:
                     if (uint.TryParse(propertyDataRead[1].TrimEnd(','), out uint uintVal))
                     {
                         isValidVal = true;
@@ -260,7 +269,7 @@ namespace WhiteBinTools.Repack
                     }
                     break;
 
-                case "Ulong":
+                case ValueTypes.Ulong:
                     if (ulong.TryParse(propertyDataRead[1].TrimEnd(','), out ulong ulongVal))
                     {
                         isValidVal = true;
@@ -278,7 +287,7 @@ namespace WhiteBinTools.Repack
         }
 
 
-        private static string CheckGetChunkEntryProperty(string currentJsonLine, string expectedPropertyName, int chunkCounter, string valueType)
+        private static string CheckGetChunkEntryProperty(string currentJsonLine, string expectedPropertyName, int chunkCounter, ValueTypes valueType)
         {
             var chunkEntryPropertyValue = string.Empty;
 
@@ -293,7 +302,7 @@ namespace WhiteBinTools.Repack
 
             switch (valueType)
             {
-                case "Uint":
+                case ValueTypes.Uint:
                     if (uint.TryParse(propertyDataRead[1].TrimEnd(','), out uint uintVal))
                     {
                         isValidVal = true;
@@ -301,7 +310,7 @@ namespace WhiteBinTools.Repack
                     }
                     break;
 
-                case "Byte":
+                case ValueTypes.Byte:
                     if (byte.TryParse(propertyDataRead[1].TrimEnd(','), out byte byteVal))
                     {
                         isValidVal = true;
