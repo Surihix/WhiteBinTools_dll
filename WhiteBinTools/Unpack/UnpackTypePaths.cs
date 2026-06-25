@@ -2,72 +2,45 @@
 using System.IO;
 using WhiteBinTools.Filelist;
 using WhiteBinTools.Support;
-using static WhiteBinTools.Support.LibaryEnums;
+using static WhiteBinTools.Support.Enumerators;
 
 namespace WhiteBinTools.Unpack
 {
     public class UnpackTypePaths
     {
-        public static void UnpackFilelistPaths(GameCodes gameCode, string filelistFile)
+        public static void UnpackFilelistPaths(GameCode gameCode, string filelistFile)
         {
-            var filelistVariables = new FilelistVariables();
+            var filelistLoaderData = FilelistLoader.LoadFilelist(gameCode, filelistFile);
 
-            FilelistProcesses.PrepareFilelistVars(filelistVariables, filelistFile);
+            var filelistHeader = filelistLoaderData.FilelistHeader;
+            var filelistEntryV1Table = filelistLoaderData.FilelistEntryV1Table;
+            var filelistEntryV2Table = filelistLoaderData.FilelistEntryV2Table;
+            var filelistChunks = filelistLoaderData.FilelistChunks;
 
-            var outTxtFile = Path.Combine(filelistVariables.MainFilelistDirectory, Path.GetFileName(filelistFile) + ".txt");
+            var outTxtFile = Path.Combine(Path.GetDirectoryName(filelistFile), Path.GetFileName(filelistFile) + ".txt");
+            SharedFunctions.IfFileExistsDel(outTxtFile);
 
-            CommonMethods.IfFileExistsDel(outTxtFile);
-
-
-            FilelistCrypto.DecryptProcess(gameCode, filelistVariables);
-
-            using (var filelistStream = new FileStream(filelistVariables.MainFilelistFile, FileMode.Open, FileAccess.Read))
-            {
-                using (var filelistReader = new BinaryReader(filelistStream))
-                {
-                    FilelistChunksPrep.GetFilelistOffsets(filelistReader, filelistVariables);
-                    FilelistChunksPrep.BuildChunks(filelistStream, filelistVariables);
-                }
-            }
-
-            if (gameCode == GameCodes.ff132)
-            {
-                filelistVariables.CurrentChunkNumber = -1;
-            }
-
-            if (filelistVariables.IsEncrypted)
-            {
-                CommonMethods.IfFileExistsDel(filelistVariables.TmpDcryptFilelistFile);
-                filelistVariables.MainFilelistFile = filelistFile;
-            }
-
-
-            // Write all file paths strings
-            // to a text file
             using (var outchunkWriter = new StreamWriter(outTxtFile, true))
             {
-                using (var entriesStream = new MemoryStream())
+                for (int i = 0; i < filelistHeader.FileCount; i++)
                 {
-                    entriesStream.Write(filelistVariables.EntriesData, 0, filelistVariables.EntriesData.Length);
-                    entriesStream.Seek(0, SeekOrigin.Begin);
+                    string whiteFileInfoString;
 
-                    using (var entriesReader = new BinaryReader(entriesStream))
+                    if (gameCode == GameCode.ff131 || gameCode == GameCode.dirge)
                     {
-
-                        // Process each file entry from 
-                        // the entry section
-                        long entriesReadPos = 0;
-                        for (int f = 0; f < filelistVariables.TotalFiles; f++)
-                        {
-                            FilelistProcesses.GetCurrentFileEntry(gameCode, entriesReader, entriesReadPos, filelistVariables);
-                            entriesReadPos += 8;
-
-                            outchunkWriter.WriteLine(filelistVariables.PathString);
-                        }
-
-                        outchunkWriter.WriteLine("end");
+                        var filelistEntryV1 = filelistEntryV1Table[i];
+                        whiteFileInfoString = FilelistLoader.GetWhiteFileInfoString(filelistEntryV1.FileInfoPos, filelistChunks, filelistEntryV1.ChunkID);
                     }
+                    else
+                    {
+                        var filelistEntryV2 = filelistEntryV2Table[i];
+                        whiteFileInfoString = FilelistLoader.GetWhiteFileInfoString(filelistEntryV2.FileInfoPos, filelistChunks, filelistEntryV2.ChunkID);
+                    }
+
+                    outchunkWriter.WriteLine(whiteFileInfoString);
                 }
+
+                outchunkWriter.WriteLine("end");
             }
 
             Console.WriteLine($"\nFinished writing filepaths to \"{Path.GetFileName(outTxtFile)}\"");
