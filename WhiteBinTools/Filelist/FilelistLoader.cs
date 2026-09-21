@@ -24,6 +24,10 @@ namespace WhiteBinTools.Filelist
             {
                 filelistBaseOffset = 32;
             }
+            else
+            {
+                filelistBaseOffset = 0;
+            }
 
             var filelistHeader = new FilelistHeader();
 
