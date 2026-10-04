@@ -113,3 +113,18 @@ public static void RepackJsonFilelist(GameCode gameCode, string jsonFile, bool b
 
 }
 ```
+
+### Logging Support
+All logged messages can be sent to a function by subscribing to this ``WhiteBinToolsLogger.LogWritten`` action event, which will retrive the message string into that function. do note that the message string will not have a newline character at the end.
+
+```c#
+static void YourProcess()
+{
+	WhiteBinToolsLogger.LogWritten += LogStatus;
+}
+
+static void LogStatus(string message)
+{
+
+}
+```
