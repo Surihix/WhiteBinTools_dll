@@ -23,7 +23,9 @@ namespace WhiteBinTools.Unpack
 
             if (Directory.Exists(unpackDir))
             {
-                Console.WriteLine("Detected previous unpack. deleting....\n");
+                WhiteBinToolsLogger.WriteLog("Detected previous unpack. deleting....");
+                WhiteBinToolsLogger.WriteLog("");
+
                 SharedFunctions.IfDirExistsDel(unpackDir);
             }
 
@@ -68,12 +70,14 @@ namespace WhiteBinTools.Unpack
                         dirgePathsLog[i] = sb.ToString();
                     }
 
-                    Console.WriteLine($"{unpackedState} _{Path.Combine(whiteBinName, whiteFileInfoData.FilePath)}");
+                    WhiteBinToolsLogger.WriteLog($"{unpackedState} _{Path.Combine(whiteBinName, whiteFileInfoData.FilePath)}");
                 }
 
                 if (gameCode == GameCode.dirge)
                 {
-                    Console.WriteLine("\nWriting dirge unpacked paths log....\n");
+                    WhiteBinToolsLogger.WriteLog("");
+                    WhiteBinToolsLogger.WriteLog("Writing dirge unpacked paths log....");
+                    WhiteBinToolsLogger.WriteLog("");
 
                     var dirgePathsTxtFile = Path.Combine(Path.GetDirectoryName(whiteBinFile), $"{whiteBinName}_unpacked_paths.txt");
                     SharedFunctions.IfFileExistsDel(dirgePathsTxtFile);
@@ -87,11 +91,12 @@ namespace WhiteBinTools.Unpack
                     }
                 }
 
-                Console.WriteLine($"\nFinished unpacking \"{whiteBinName}\"");
+                WhiteBinToolsLogger.WriteLog("");
+                WhiteBinToolsLogger.WriteLog($"Finished unpacking \"{whiteBinName}\"");
 
                 if (duplicateCounter > 1)
                 {
-                    Console.WriteLine($"{duplicateCounter} duplicate file(s)");
+                    WhiteBinToolsLogger.WriteLog($"{duplicateCounter} duplicate file(s)");
                 }
             }
         }

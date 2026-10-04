@@ -13,7 +13,8 @@ namespace WhiteBinTools.Repack
         {
             var infoFile = Path.Combine(extractedFilelistDir, "#info.txt");
 
-            Console.WriteLine("\nParsing '#info.txt' file....");
+            WhiteBinToolsLogger.WriteLog("");
+            WhiteBinToolsLogger.WriteLog("Parsing '#info.txt' file....");
 
             var infoFileLines = File.ReadAllLines(infoFile);
 
@@ -74,8 +75,9 @@ namespace WhiteBinTools.Repack
                 filelistHeader.ChunkCount = int.Parse(infoFileLines[1].Split(' ')[1]);
             }
 
-            Console.WriteLine("TotalChunks: " + filelistHeader.ChunkCount);
-            Console.WriteLine("No of files: " + filelistHeader.FileCount + "\n");
+            WhiteBinToolsLogger.WriteLog("TotalChunks: " + filelistHeader.ChunkCount);
+            WhiteBinToolsLogger.WriteLog("No of files: " + filelistHeader.FileCount);
+            WhiteBinToolsLogger.WriteLog("");
 
             var newFilelistFileName = Path.GetFileName(extractedFilelistDir);
 
@@ -88,7 +90,10 @@ namespace WhiteBinTools.Repack
 
             if (bckup)
             {
-                Console.WriteLine("\nBacking up filelist bin file....\n");
+                WhiteBinToolsLogger.WriteLog("");
+                WhiteBinToolsLogger.WriteLog("Backing up filelist bin file....");
+                WhiteBinToolsLogger.WriteLog("");
+
                 SharedFunctions.IfFileExistsDel($"{newFilelistFile}.bak");
                 File.Move(newFilelistFile, $"{newFilelistFile}.bak");
             }
@@ -107,7 +112,7 @@ namespace WhiteBinTools.Repack
 
             var fileInfoStringPackTable = new FileInfoStringPack[filelistHeader.FileCount];
 
-            Console.WriteLine("Parsing filepaths....");
+            WhiteBinToolsLogger.WriteLog("Parsing filepaths....");
             var fileIndex = 0;
 
             for (int i = 0; i < filelistHeader.ChunkCount; i++)
@@ -174,7 +179,8 @@ namespace WhiteBinTools.Repack
                 }
             }
 
-            Console.WriteLine("\nBuilding filelist....");
+            WhiteBinToolsLogger.WriteLog("");
+            WhiteBinToolsLogger.WriteLog("Building filelist....");
             FilelistBuilder.BuildFilelist(filelistCryptHeader, filelistHeader, gameCode, newEntryV1Table, newEntryV2Table, fileInfoStringPackTable, newFilelistFile);
 
             if (filelistCryptHeader.HasCryptHeader)
@@ -182,7 +188,9 @@ namespace WhiteBinTools.Repack
                 FilelistCrypto.EncryptProcess(newFilelistFile);
             }
 
-            Console.WriteLine($"\n\nFinished repacking filelist data to \"{newFilelistFileName}\"");
+            WhiteBinToolsLogger.WriteLog("");
+            WhiteBinToolsLogger.WriteLog("");
+            WhiteBinToolsLogger.WriteLog($"Finished repacking filelist data to \"{newFilelistFileName}\"");
         }
 
         private static void CheckPropertyInInfoFile(string propertyDataRead, string expectedPropertyName, ValueTypes valueType)

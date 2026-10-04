@@ -40,8 +40,9 @@ namespace WhiteBinTools.Filelist
                 filelistHeader.FileCount = filelistReader.ReadUInt32();
                 filelistLoadData.FilelistHeader = filelistHeader;
 
-                Console.WriteLine($"No of files: {filelistHeader.FileCount}");
-                Console.WriteLine($"Loading entries....\n");
+                WhiteBinToolsLogger.WriteLog($"No of files: {filelistHeader.FileCount}");
+                WhiteBinToolsLogger.WriteLog($"Loading entries....");
+                WhiteBinToolsLogger.WriteLog("");
 
                 var filelistEntryV1Table = new FilelistEntryV1[filelistHeader.FileCount];
                 var filelistEntryV2Table = new FilelistEntryV2[filelistHeader.FileCount];
@@ -50,8 +51,9 @@ namespace WhiteBinTools.Filelist
                 filelistLoadData.FilelistEntryV1Table = filelistEntryV1Table;
                 filelistLoadData.FilelistEntryV2Table = filelistEntryV2Table;
 
-                Console.WriteLine($"TotalChunks: {filelistHeader.ChunkCount}");
-                Console.WriteLine($"Loading chunks....\n");
+                WhiteBinToolsLogger.WriteLog($"TotalChunks: {filelistHeader.ChunkCount}");
+                WhiteBinToolsLogger.WriteLog($"Loading chunks....");
+                WhiteBinToolsLogger.WriteLog("");
 
                 var filelistChunks = new FilelistChunk[filelistHeader.ChunkCount];
                 LoadPathChunks(filelistReader, filelistHeader, filelistChunks);

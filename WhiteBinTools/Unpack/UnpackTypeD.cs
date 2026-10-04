@@ -51,7 +51,7 @@ namespace WhiteBinTools.Unpack
 
             var fileInfoStringPackTable = new FileInfoStringPack[filelistHeader.FileCount];
 
-            Console.WriteLine("Parsing filepaths....");
+            WhiteBinToolsLogger.WriteLog("Parsing filepaths....");
 
             for (int i = 0; i < filelistHeader.FileCount; i++)
             {
@@ -90,7 +90,8 @@ namespace WhiteBinTools.Unpack
                 }
             }
 
-            Console.WriteLine($"\nFinished unpacking \"{filelistOutName}\"");
+            WhiteBinToolsLogger.WriteLog("");
+            WhiteBinToolsLogger.WriteLog($"Finished unpacking \"{filelistOutName}\"");
         }
     }
 }

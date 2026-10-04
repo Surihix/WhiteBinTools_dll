@@ -123,7 +123,9 @@ namespace WhiteBinTools.Unpack
                 outJsonWriter.Write("}");
             }
 
-            Console.WriteLine($"\n\nFinished writing filelist data to \"{Path.GetFileName(outJsonFile)}\"");
+            WhiteBinToolsLogger.WriteLog("");
+            WhiteBinToolsLogger.WriteLog("");
+            WhiteBinToolsLogger.WriteLog($"Finished writing filelist data to \"{Path.GetFileName(outJsonFile)}\"");
         }
     }
 }

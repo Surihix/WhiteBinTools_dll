@@ -1,5 +1,4 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using WhiteBinTools.Filelist;
 using WhiteBinTools.Support;
 using static WhiteBinTools.Support.Enumerators;
@@ -43,7 +42,8 @@ namespace WhiteBinTools.Unpack
                 outchunkWriter.WriteLine("end");
             }
 
-            Console.WriteLine($"\nFinished writing filepaths to \"{Path.GetFileName(outTxtFile)}\"");
+            WhiteBinToolsLogger.WriteLog("");
+            WhiteBinToolsLogger.WriteLog($"Finished writing filepaths to \"{Path.GetFileName(outTxtFile)}\"");
         }
     }
 }

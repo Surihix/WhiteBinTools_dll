@@ -74,7 +74,7 @@ namespace WhiteBinTools.Filelist
                     SharedFunctions.IfFileExistsDel(cryptFilelist);
                     File.Copy(filelistFile, cryptFilelist);
 
-                    Console.WriteLine("\nDecrypting filelist file....");
+                    WhiteBinToolsLogger.WriteLog("\nDecrypting filelist file....");
                     CryptFilelist.ProcessFilelist(CryptAction.decrypt, cryptFilelist);
 
                     using (var decFilelistReader = new BinaryReader(File.Open(cryptFilelist, FileMode.Open, FileAccess.Read)))
@@ -93,7 +93,8 @@ namespace WhiteBinTools.Filelist
                         }
                     }
 
-                    Console.WriteLine("Finished decrypting filelist file\n");
+                    WhiteBinToolsLogger.WriteLog("Finished decrypting filelist file");
+                    WhiteBinToolsLogger.WriteLog("");
 
                     hasDecrypted = true;
                     filelistFile = cryptFilelist;
@@ -182,7 +183,8 @@ namespace WhiteBinTools.Filelist
 
             // Encrypt the filelist file
             CryptFilelist.ProcessFilelist(CryptAction.encrypt, newFilelistFile);
-            Console.WriteLine("\nFinished encrypting new filelist");
+            WhiteBinToolsLogger.WriteLog("");
+            WhiteBinToolsLogger.WriteLog("Finished encrypting new filelist");
         }
     }
 }

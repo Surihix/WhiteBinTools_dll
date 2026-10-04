@@ -100,6 +100,7 @@
     <Compile Include="WhiteBinTools\Support\Structures\FilelistLoadData.cs" />
     <Compile Include="WhiteBinTools\Support\Structures\FilelistPathChunkInfo.cs" />
     <Compile Include="WhiteBinTools\Support\Structures\WhiteFileInfoData.cs" />
+    <Compile Include="WhiteBinTools\Support\WhiteBinToolsLogger.cs" />
     <Compile Include="WhiteBinTools\Support\ZlibFunctions.cs" />
     <Compile Include="WhiteBinTools\Unpack\UnpackHelper.cs" />
     <Compile Include="WhiteBinTools\Unpack\UnpackTypeA.cs" />

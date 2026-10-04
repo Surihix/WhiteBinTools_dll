@@ -1,6 +1,6 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using WhiteBinTools.Filelist;
+using WhiteBinTools.Support;
 using static WhiteBinTools.Support.Enumerators;
 
 namespace WhiteBinTools.Unpack
@@ -56,7 +56,7 @@ namespace WhiteBinTools.Unpack
                     {
                         var unpackedState = UnpackHelper.UnpackFile(whiteFileInfoData, unpackDir, ref duplicateCounter, whiteBinStream);
 
-                        Console.WriteLine($"{unpackedState} _{Path.Combine(whiteBinName, whiteFileInfoData.FilePath)}");
+                        WhiteBinToolsLogger.WriteLog($"{unpackedState} _{Path.Combine(whiteBinName, whiteFileInfoData.FilePath)}");
                         hasExtracted = true;
                     }
                 }
@@ -64,16 +64,17 @@ namespace WhiteBinTools.Unpack
 
             if (hasExtracted)
             {
-                Console.WriteLine($"\nFinished unpacking file from \"{whiteBinName}\"");
+                WhiteBinToolsLogger.WriteLog("");
+                WhiteBinToolsLogger.WriteLog($"Finished unpacking file from \"{whiteBinName}\"");
 
                 if (duplicateCounter > 0)
                 {
-                    Console.WriteLine($"{duplicateCounter} duplicate file(s)");
+                    WhiteBinToolsLogger.WriteLog($"{duplicateCounter} duplicate file(s)");
                 }
             }
             else
             {
-                Console.WriteLine("Specified file does not exist. please specify a valid file path.");
+                WhiteBinToolsLogger.WriteLog("Specified file does not exist. please specify a valid file path.");
             }
         }
     }

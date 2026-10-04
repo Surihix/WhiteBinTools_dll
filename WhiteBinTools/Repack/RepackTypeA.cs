@@ -102,11 +102,12 @@ namespace WhiteBinTools.Repack
 
                     fileInfoStringPackTable[i] = new FileInfoStringPack() { ChunkID = chunkID, FileInfoString = pathString };
 
-                    Console.WriteLine($"{repackedState} _{Path.Combine(newWhiteBinName, whiteFileInfoData.FilePath)}");
+                    WhiteBinToolsLogger.WriteLog($"{repackedState} _{Path.Combine(newWhiteBinName, whiteFileInfoData.FilePath)}");
                 }
             }
 
-            Console.WriteLine("\nBuilding filelist....");
+            WhiteBinToolsLogger.WriteLog("");
+            WhiteBinToolsLogger.WriteLog("Building filelist....");
             FilelistBuilder.BuildFilelist(filelistCryptHeader, filelistHeader, gameCode, newEntryV1Table, newEntryV2Table, fileInfoStringPackTable, newFilelistFile);
 
             if (filelistCryptHeader.HasCryptHeader)
@@ -114,7 +115,8 @@ namespace WhiteBinTools.Repack
                 FilelistCrypto.EncryptProcess(newFilelistFile);
             }
 
-            Console.WriteLine($"\nFinished repacking files to \"{newWhiteBinName}\"");
+            WhiteBinToolsLogger.WriteLog("");
+            WhiteBinToolsLogger.WriteLog($"Finished repacking files to \"{newWhiteBinName}\"");
         }
     }
 }

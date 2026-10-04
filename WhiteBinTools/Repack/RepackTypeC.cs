@@ -24,7 +24,10 @@ namespace WhiteBinTools.Repack
 
             if (bckup)
             {
-                Console.WriteLine("\nBacking up filelist and image bin files....\n");
+                WhiteBinToolsLogger.WriteLog("");
+                WhiteBinToolsLogger.WriteLog("Backing up filelist and image bin files....");
+                WhiteBinToolsLogger.WriteLog("");
+
                 SharedFunctions.IfFileExistsDel($"{newFilelistFile}.bak");
                 File.Move(newFilelistFile, $"{newFilelistFile}.bak");
 
@@ -104,7 +107,7 @@ namespace WhiteBinTools.Repack
 
                     fileInfoStringPackTable[i] = new FileInfoStringPack() { ChunkID = chunkID, FileInfoString = pathString };
 
-                    Console.WriteLine($"{repackedState} _{Path.Combine(whiteBinName, whiteFileInfoData.FilePath)} {packedState}");
+                    WhiteBinToolsLogger.WriteLog($"{repackedState} _{Path.Combine(whiteBinName, whiteFileInfoData.FilePath)} {packedState}");
                 }
                 else
                 {
@@ -112,7 +115,8 @@ namespace WhiteBinTools.Repack
                 }
             }
 
-            Console.WriteLine("\nBuilding filelist....");
+            WhiteBinToolsLogger.WriteLog("");
+            WhiteBinToolsLogger.WriteLog("Building filelist....");
             FilelistBuilder.BuildFilelist(filelistCryptHeader, filelistHeader, gameCode, newEntryV1Table, newEntryV2Table, fileInfoStringPackTable, newFilelistFile);
 
             if (filelistCryptHeader.HasCryptHeader)
@@ -120,7 +124,8 @@ namespace WhiteBinTools.Repack
                 FilelistCrypto.EncryptProcess(newFilelistFile);
             }
 
-            Console.WriteLine($"\nFinished repacking file(s) to \"{whiteBinName}\"");
+            WhiteBinToolsLogger.WriteLog("");
+            WhiteBinToolsLogger.WriteLog($"Finished repacking file(s) to \"{whiteBinName}\"");
         }
     }
 }

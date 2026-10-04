@@ -16,12 +16,15 @@ namespace WhiteBinTools.Repack
 
             if (bckup)
             {
-                Console.WriteLine("\nBacking up filelist bin file....\n");
+                WhiteBinToolsLogger.WriteLog("");
+                WhiteBinToolsLogger.WriteLog("Backing up filelist bin file....");
+                WhiteBinToolsLogger.WriteLog("");
+
                 SharedFunctions.IfFileExistsDel($"{newFilelistFile}.bak");
                 File.Move(newFilelistFile, $"{newFilelistFile}.bak");
             }
 
-            Console.WriteLine("\nParsing json file....");
+            WhiteBinToolsLogger.WriteLog("\nParsing json file....");
 
             using (var jsonReader = new StreamReader(jsonFile))
             {
@@ -51,8 +54,9 @@ namespace WhiteBinTools.Repack
                 filelistHeader.FileCount = uint.Parse(CheckGetMainProperty(jsonReader, "\"fileCount\"", ValueTypes.Uint));
                 filelistHeader.ChunkCount = int.Parse(CheckGetMainProperty(jsonReader, "\"chunkCount\"", ValueTypes.Int));
 
-                Console.WriteLine("TotalChunks: " + filelistHeader.ChunkCount);
-                Console.WriteLine("No of files: " + filelistHeader.FileCount + "\n");
+                WhiteBinToolsLogger.WriteLog("TotalChunks: " + filelistHeader.ChunkCount);
+                WhiteBinToolsLogger.WriteLog("No of files: " + filelistHeader.FileCount);
+                WhiteBinToolsLogger.WriteLog("");
 
                 if (!jsonReader.ReadLine().TrimStart(' ').StartsWith("\"data\": {"))
                 {
@@ -74,7 +78,7 @@ namespace WhiteBinTools.Repack
 
                 var fileInfoStringPackTable = new FileInfoStringPack[filelistHeader.FileCount];
 
-                Console.WriteLine("Parsing filepaths....");
+                WhiteBinToolsLogger.WriteLog("Parsing filepaths....");
 
                 // Process each path in chunks
                 var currentEntryPropertyValue = string.Empty;
@@ -152,7 +156,8 @@ namespace WhiteBinTools.Repack
                     }
                 }
 
-                Console.WriteLine("\nBuilding filelist....");
+                WhiteBinToolsLogger.WriteLog("");
+                WhiteBinToolsLogger.WriteLog("Building filelist....");
                 FilelistBuilder.BuildFilelist(filelistCryptHeader, filelistHeader, gameCode, newEntryV1Table, newEntryV2Table, fileInfoStringPackTable, newFilelistFile);
 
                 if (filelistCryptHeader.HasCryptHeader)
@@ -161,7 +166,9 @@ namespace WhiteBinTools.Repack
                 }
             }
 
-            Console.WriteLine($"\n\nFinished repacking JSON data to \"{Path.GetFileName(newFilelistFileName)}\"");
+            WhiteBinToolsLogger.WriteLog("");
+            WhiteBinToolsLogger.WriteLog("");
+            WhiteBinToolsLogger.WriteLog($"Finished repacking JSON data to \"{Path.GetFileName(newFilelistFileName)}\"");
         }
 
         private static string CheckGetMainProperty(StreamReader jsonReader, string expectedPropertyName, ValueTypes valueType)
